@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKY Leasing | Fleet & Airline Health Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f1f5f9; color: #1e293b; font-size: 14px; }
+
+  /* Header */
+  .page-header { background: #0a1220; color: white; padding: 20px 28px 18px; }
+  .page-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .page-header .subtitle { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+  .header-meta { display: flex; gap: 14px; margin-top: 14px; flex-wrap: wrap; }
+  .stat-pill { background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.28); border-radius: 6px; padding: 8px 14px; }
+  .stat-pill .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-pill .value { font-size: 18px; font-weight: 700; color: white; line-height: 1.2; }
+  .stat-pill .sub { font-size: 10px; color: #94a3b8; margin-top: 2px; font-weight: 400; line-height: 1.3; }
+  .stat-pill.accent .value { color: #a78bfa; }
+
+  /* Mini drift bar */
+  .drift-bar { display: flex; gap: 14px; padding: 12px 28px; background: #111b2e; color: #cbd5e1; font-size: 12px; border-bottom: 1px solid #1e293b; flex-wrap: wrap; }
+  .drift-bar .item { display: flex; align-items: center; gap: 7px; }
+  .drift-bar .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .drift-bar .dot.improving { background: #10b981; }
+  .drift-bar .dot.stable { background: #64748b; }
+  .drift-bar .dot.watch { background: #f59e0b; }
+  .drift-bar .dot.concern { background: #ef4444; }
+  .drift-bar strong { color: white; }
+
+  /* Expiry rollup chart */
+  .rollup-wrap { background: white; padding: 14px 28px 16px; border-bottom: 1px solid #e2e8f0; }
+  .rollup-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .rollup-title small { font-weight: 500; color: #94a3b8; text-transform: none; letter-spacing: 0; margin-left: 8px; }
+  .rollup-bars { display: flex; align-items: flex-end; gap: 3px; height: 68px; padding-bottom: 18px; position: relative; border-bottom: 1px solid #e2e8f0; }
+  .rollup-bar { flex: 1; background: linear-gradient(to top, #8b5cf6, #a78bfa); border-radius: 2px 2px 0 0; position: relative; min-height: 2px; transition: all 0.15s; cursor: default; }
+  .rollup-bar:hover { background: linear-gradient(to top, #7c3aed, #8b5cf6); }
+  .rollup-bar .tip { visibility: hidden; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #0a1220; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; white-space: nowrap; margin-bottom: 4px; z-index: 10; }
+  .rollup-bar:hover .tip { visibility: visible; }
+  .rollup-bar .mlabel { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 3px; font-size: 9px; color: #94a3b8; white-space: nowrap; }
+
+  /* Filter bar */
+  .filter-bar { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 28px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .filter-group { display: flex; gap: 6px; align-items: center; }
+  .filter-group label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; }
+  .chip { padding: 4px 11px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: white; color: #475569; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .chip:hover { border-color: #8b5cf6; color: #8b5cf6; }
+  .chip.active { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+  .search-input { padding: 5px 12px; border: 1.5px solid #cbd5e1; border-radius: 20px; font-size: 12px; outline: none; min-width: 220px; color: #1e293b; }
+  .search-input:focus { border-color: #8b5cf6; }
+  .divider { width: 1px; height: 28px; background: #e2e8f0; }
+  .result-count { font-size: 12px; color: #94a3b8; margin-left: auto; white-space: nowrap; }
+
+  /* Table container */
+  .table-wrap { padding: 16px 28px 32px; }
+  .table-container { background: white; border-radius: 10px; border: 1px solid #e2e8f0; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer; white-space: nowrap; user-select: none; }
+  th:hover { color: #8b5cf6; }
+  th.sort-asc::after { content: " \25B2"; font-size: 9px; }
+  th.sort-desc::after { content: " \25BC"; font-size: 9px; }
+  tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+  tbody tr:hover { background: #faf7ff; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 12px; vertical-align: middle; }
+
+  /* Cells & badges */
+  .rank-cell { font-size: 13px; font-weight: 700; color: #8b5cf6; }
+  .airline-name { font-weight: 600; color: #0a1220; font-size: 13px; }
+  .airline-sub { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+  .iata-code { display: inline-block; background: #f3f4f6; color: #475569; padding: 2px 6px; border-radius: 3px; font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+  .region-cell { font-size: 12px; color: #475569; white-space: nowrap; }
+  .fleet-cell { font-size: 13px; font-weight: 600; color: #334155; text-align: right; }
+  .nb-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .nb-bar-track { width: 52px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; }
+  .nb-bar-fill { height: 100%; background: #8b5cf6; border-radius: 3px; }
+  .nb-num { font-size: 11px; color: #64748b; min-width: 26px; }
+  .sky-count { font-size: 13px; font-weight: 700; color: #0a1220; text-align: center; }
+  .sky-count.zero { color: #cbd5e1; font-weight: 500; }
+  .expiry-cell { font-size: 12px; font-weight: 600; color: #475569; white-space: nowrap; }
+  .expiry-cell.soon { color: #ef4444; }
+  .expiry-cell.near { color: #f59e0b; }
+  .expiry-cell.far { color: #10b981; }
+  .expiry-cell.none { color: #cbd5e1; font-weight: 500; }
+  .expiry-sub { font-size: 10px; color: #94a3b8; font-weight: 400; }
+
+  .drift-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.2px; }
+  .drift-badge .ddot { width: 7px; height: 7px; border-radius: 50%; }
+  .drift-badge.improving { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .drift-badge.improving .ddot { background: #10b981; }
+  .drift-badge.stable { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .drift-badge.stable .ddot { background: #64748b; }
+  .drift-badge.watch { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+  .drift-badge.watch .ddot { background: #f59e0b; }
+  .drift-badge.concern { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .drift-badge.concern .ddot { background: #ef4444; }
+
+  .status-badge { display: inline-block; padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 600; letter-spacing: 0.2px; }
+  .status-badge.current { background: #ede9fe; color: #6d28d9; }
+  .status-badge.prospect { background: #eff6ff; color: #1d4ed8; }
+  .status-badge.former { background: #f1f5f9; color: #64748b; }
+
+  .score-cell { font-size: 13px; font-weight: 700; color: #0a1220; }
+  .score-bar-wrap { display: flex; align-items: center; gap: 6px; }
+  .score-bar-track { width: 40px; height: 6px; background: #ede9fe; border-radius: 3px; overflow: hidden; }
+  .score-bar-fill { height: 100%; background: #8b5cf6; border-radius: 3px; }
+
+  .signal-cell { font-size: 11px; color: #475569; line-height: 1.35; max-width: 240px; }
+  .signal-cell .stag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; margin-right: 5px; vertical-align: middle; }
+  .signal-cell .stag.positive { background: #dcfce7; color: #15803d; }
+  .signal-cell .stag.concern { background: #fee2e2; color: #b91c1c; }
+  .signal-cell .stag.neutral { background: #e2e8f0; color: #475569; }
+
+  .fleet-type-tag { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 9px; font-weight: 600; margin-right: 3px; vertical-align: middle; }
+  .fleet-type-tag.neo { background: #ede9fe; color: #6d28d9; }
+  .fleet-type-tag.max { background: #fef3c7; color: #b45309; }
+
+  /* Empty state */
+  .empty-state { padding: 48px; text-align: center; color: #94a3b8; }
+  .empty-state .icon { font-size: 14px; margin-bottom: 8px; font-weight: 600; color: #64748b; letter-spacing: 0.3px; }
+
+  /* Footer */
+  .page-footer { padding: 16px 28px; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; background: white; line-height: 1.6; }
+  .page-footer strong { color: #64748b; }
+
+  /* Export btn */
+  .export-btn { padding: 5px 14px; background: white; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #475569; cursor: pointer; font-weight: 500; }
+  .export-btn:hover { border-color: #8b5cf6; color: #8b5cf6; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>SKY Leasing &middot; Fleet &amp; Airline Health Dashboard</h1>
+  <div class="subtitle">Airline customer and prospect universe &middot; lease expiry &middot; credit drift &middot; placement opportunity</div>
+  <div class="header-meta">
+    <div class="stat-pill"><div class="label">Scored Counterparties</div><div class="value" id="stat-total">--</div></div>
+    <div class="stat-pill accent"><div class="label">Next-Gen Tails Tracked</div><div class="value">1,317</div><div class="sub">737 MAX + A320NEO &middot; daily-refresh FAA registry</div></div>
+    <div class="stat-pill"><div class="label">Illustrative Fleet Book</div><div class="value">$8.4B</div></div>
+    <div class="stat-pill accent"><div class="label">SKY-Likely via Trustees</div><div class="value">551</div><div class="sub">Bank of Utah, Wilmington Trust, UMB, Wells Fargo</div></div>
+    <div class="stat-pill accent"><div class="label">Lease Expiry &lt; 18 mo</div><div class="value" id="stat-expiry">--</div></div>
+  </div>
+</div>
+
+<div class="drift-bar">
+  <div class="item"><span class="dot concern"></span>Concern-list airlines: <strong id="drift-concern">--</strong></div>
+  <div class="item"><span class="dot watch"></span>Watch-list: <strong id="drift-watch">--</strong></div>
+  <div class="item"><span class="dot improving"></span>Improving: <strong id="drift-improving">--</strong></div>
+  <div class="item"><span class="dot stable"></span>Stable: <strong id="drift-stable">--</strong></div>
+  <div class="item" style="color:#94a3b8;font-style:italic">(illustrative)</div>
+</div>
+
+<div class="rollup-wrap">
+  <div class="rollup-title">SKY Fleet Expiry Rollup &mdash; next 24 months <small>aircraft returning off-lease per month (illustrative)</small></div>
+  <div class="rollup-bars" id="rollup-bars"></div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <label>Status</label>
+    <div class="chip active" id="chip-st-all" onclick="setStatusFilter('all',this)">All</div>
+    <div class="chip" id="chip-st-cur" onclick="setStatusFilter('Current',this)">Current</div>
+    <div class="chip" id="chip-st-pro" onclick="setStatusFilter('Prospect',this)">Prospect</div>
+    <div class="chip" id="chip-st-for" onclick="setStatusFilter('Former',this)">Former</div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <label>Region</label>
+    <div class="chip active" id="chip-rg-all" onclick="setRegionFilter('all',this)">All</div>
+    <div class="chip" id="chip-rg-na" onclick="setRegionFilter('North America',this)">N America</div>
+    <div class="chip" id="chip-rg-eu" onclick="setRegionFilter('Europe',this)">Europe</div>
+    <div class="chip" id="chip-rg-lat" onclick="setRegionFilter('LatAm',this)">LatAm</div>
+    <div class="chip" id="chip-rg-me" onclick="setRegionFilter('Middle East',this)">M East</div>
+    <div class="chip" id="chip-rg-ap" onclick="setRegionFilter('Asia-Pacific',this)">Asia-Pac</div>
+    <div class="chip" id="chip-rg-af" onclick="setRegionFilter('Africa',this)">Africa</div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <label>Fleet</label>
+    <div class="chip active" id="chip-ft-all" onclick="setFleetFilter('all',this)">All</div>
+    <div class="chip" id="chip-ft-neo" onclick="setFleetFilter('NEO',this)">A320NEO</div>
+    <div class="chip" id="chip-ft-max" onclick="setFleetFilter('MAX',this)">737 MAX</div>
+    <div class="chip" id="chip-ft-both" onclick="setFleetFilter('Both',this)">Both</div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <label>Drift</label>
+    <div class="chip active" id="chip-dr-all" onclick="setDriftFilter('all',this)">All</div>
+    <div class="chip" id="chip-dr-imp" onclick="setDriftFilter('Improving',this)">Improving</div>
+    <div class="chip" id="chip-dr-sta" onclick="setDriftFilter('Stable',this)">Stable</div>
+    <div class="chip" id="chip-dr-wat" onclick="setDriftFilter('Watch',this)">Watch</div>
+    <div class="chip" id="chip-dr-con" onclick="setDriftFilter('Concern',this)">Concern</div>
+  </div>
+  <div class="divider"></div>
+  <div class="filter-group">
+    <label>Expiry</label>
+    <div class="chip active" id="chip-ex-all" onclick="setExpiryFilter('all',this)">All</div>
+    <div class="chip" id="chip-ex-6" onclick="setExpiryFilter('0-6',this)">0-6 mo</div>
+    <div class="chip" id="chip-ex-18" onclick="setExpiryFilter('6-18',this)">6-18 mo</div>
+    <div class="chip" id="chip-ex-36" onclick="setExpiryFilter('18-36',this)">18-36 mo</div>
+    <div class="chip" id="chip-ex-far" onclick="setExpiryFilter('36+',this)">36+ mo</div>
+  </div>
+  <div class="divider"></div>
+  <input class="search-input" id="search-box" type="text" placeholder="Search airline, IATA, ICAO, country..." oninput="renderTable()">
+  <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+  <div class="result-count" id="result-count">-- airlines</div>
+</div>
+
+<div class="table-wrap">
+  <div class="table-container">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('rank')" id="th-rank">Rank</th>
+          <th onclick="sortBy('airline')" id="th-airline">Airline</th>
+          <th onclick="sortBy('iata')" id="th-iata">IATA</th>
+          <th onclick="sortBy('region')" id="th-region">Region</th>
+          <th onclick="sortBy('total_fleet')" id="th-fleet" style="text-align:right">Fleet</th>
+          <th onclick="sortBy('narrowbody_share_pct')" id="th-nb">NB Share</th>
+          <th onclick="sortBy('sky_aircraft_count')" id="th-sky" style="text-align:center">SKY A/C</th>
+          <th onclick="sortBy('next_sky_expiry_iso')" id="th-exp">Next SKY Expiry</th>
+          <th onclick="sortBy('credit_drift')" id="th-drift">Credit Drift (illustrative)</th>
+          <th onclick="sortBy('sky_status')" id="th-status">Status</th>
+          <th onclick="sortBy('placement_score')" id="th-score">Placement</th>
+          <th id="th-signal">Signal</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="icon">No matching airlines</div>
+      <div>Adjust filters to see results</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <strong>Methodology:</strong> Real-data anchors: 1,317 next-gen narrowbody tails (737 MAX + A320NEO) sourced from daily-refresh FAA registry; 551 of those held under common owner-trustees (Bank of Utah, Wilmington Trust, UMB, Wells Fargo) and surfaced as SKY-likely. Airline universe sampled from ICAO and BTS T-100. <strong>Illustrative</strong> (not real per-airline data): lease expiries, credit drift, and placement scores are synthetic composites for demo purposes; not forecasts.
+  <strong>Scoring:</strong> Placement score blends narrowbody share, recent capacity additions, regional fleet growth, SKY incumbency, and credit drift signal. &nbsp; <strong>Refresh vintage:</strong> April 2026. &nbsp; <strong>Ownership:</strong> ATL Partners / PSP Investments (2015).
+</div>
+
+<script>
+const AIRLINES = [
+  {
+    "id": 1,
+    "rank": 1,
+    "airline": "Southwest Airlines",
+    "iata": "WN",
+    "icao": "SWA",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 743,
+    "narrowbody_share_pct": 37,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Prospect",
+    "signal": "FAA registry snapshot Apr 2026: 272 737 MAX tails &middot; 0 A320NEO",
+    "signal_type": "positive"
+  },
+  {
+    "id": 2,
+    "rank": 2,
+    "airline": "United Airlines",
+    "iata": "UA",
+    "icao": "UAL",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 1187,
+    "narrowbody_share_pct": 16,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Prospect",
+    "signal": "FAA registry snapshot Apr 2026: 137 737 MAX tails &middot; 56 A320NEO tails",
+    "signal_type": "positive"
+  },
+  {
+    "id": 3,
+    "rank": 3,
+    "airline": "Delta Air Lines",
+    "iata": "DL",
+    "icao": "DAL",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 1103,
+    "narrowbody_share_pct": 8,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 55,
+    "sky_status": "Prospect",
+    "signal": "Per FAA registry snapshot 2026-04-23: 88 next-gen narrowbody (0 737 MAX, 88 A320NEO) across 1103 total US-registered tails",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 4,
+    "rank": 4,
+    "airline": "Alaska Airlines",
+    "iata": "AS",
+    "icao": "ASA",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 222,
+    "narrowbody_share_pct": 36,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 58,
+    "sky_status": "Prospect",
+    "signal": "Per FAA registry snapshot 2026-04-23: 79 next-gen narrowbody (79 737 MAX, 0 A320NEO) across 222 total US-registered tails",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 5,
+    "rank": 5,
+    "airline": "American Airlines",
+    "iata": "AA",
+    "icao": "AAL",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 970,
+    "narrowbody_share_pct": 7,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 42,
+    "sky_status": "Prospect",
+    "signal": "Per FAA registry snapshot 2026-04-23: 67 next-gen narrowbody (67 737 MAX, 0 A320NEO) across 970 total US-registered tails",
+    "signal_type": "concern"
+  },
+  {
+    "id": 6,
+    "rank": 6,
+    "airline": "Jetblue Airways",
+    "iata": "B6",
+    "icao": "JBU",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 276,
+    "narrowbody_share_pct": 11,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 30,
+    "sky_status": "Prospect",
+    "signal": "Per FAA registry snapshot 2026-04-23: 30 next-gen narrowbody (0 737 MAX, 30 A320NEO) across 276 total US-registered tails",
+    "signal_type": "concern"
+  },
+  {
+    "id": 7,
+    "rank": 7,
+    "airline": "Hawaiian Airlines",
+    "iata": "HA",
+    "icao": "HAL",
+    "country": "USA",
+    "region": "North America",
+    "total_fleet": 53,
+    "narrowbody_share_pct": 26,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Stable",
+    "placement_score": 30,
+    "sky_status": "Prospect",
+    "signal": "Per FAA registry snapshot 2026-04-23: 14 next-gen narrowbody (0 737 MAX, 14 A320NEO) across 53 total US-registered tails",
+    "signal_type": "concern"
+  },
+  {
+    "id": 8,
+    "rank": 8,
+    "airline": "IndiGo",
+    "iata": "6E",
+    "icao": "IGO",
+    "country": "India",
+    "region": "Asia-Pacific",
+    "total_fleet": 400,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 24,
+    "next_sky_expiry_iso": "2028-02-12",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (400 NEO/MAX of 400 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 9,
+    "rank": 9,
+    "airline": "Ryanair",
+    "iata": "FR",
+    "icao": "RYR",
+    "country": "Ireland",
+    "region": "Europe",
+    "total_fleet": 575,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 52,
+    "next_sky_expiry_iso": "2028-08-10",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (575 NEO/MAX of 575 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 10,
+    "rank": 10,
+    "airline": "Turkish Airlines",
+    "iata": "TK",
+    "icao": "THY",
+    "country": "Turkey",
+    "region": "Europe",
+    "total_fleet": 440,
+    "narrowbody_share_pct": 65,
+    "sky_aircraft_count": 14,
+    "next_sky_expiry_iso": "2028-04-12",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (286 NEO/MAX of 440 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 11,
+    "rank": 11,
+    "airline": "easyJet",
+    "iata": "U2",
+    "icao": "EZY",
+    "country": "UK",
+    "region": "Europe",
+    "total_fleet": 340,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 27,
+    "next_sky_expiry_iso": "2027-07-17",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (340 NEO/MAX of 340 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 12,
+    "rank": 12,
+    "airline": "Lufthansa",
+    "iata": "LH",
+    "icao": "DLH",
+    "country": "Germany",
+    "region": "Europe",
+    "total_fleet": 320,
+    "narrowbody_share_pct": 62,
+    "sky_aircraft_count": 10,
+    "next_sky_expiry_iso": "2027-10-15",
+    "credit_drift": "Watch",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (198 NEO/MAX of 320 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 13,
+    "rank": 13,
+    "airline": "Air India",
+    "iata": "AI",
+    "icao": "AIC",
+    "country": "India",
+    "region": "Asia-Pacific",
+    "total_fleet": 220,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 11,
+    "next_sky_expiry_iso": "2027-09-15",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (154 NEO/MAX of 220 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 14,
+    "rank": 14,
+    "airline": "China Southern",
+    "iata": "CZ",
+    "icao": "CSN",
+    "country": "China",
+    "region": "Asia-Pacific",
+    "total_fleet": 890,
+    "narrowbody_share_pct": 75,
+    "sky_aircraft_count": 53,
+    "next_sky_expiry_iso": "2028-04-12",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (668 NEO/MAX of 890 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 15,
+    "rank": 15,
+    "airline": "China Eastern",
+    "iata": "MU",
+    "icao": "CES",
+    "country": "China",
+    "region": "Asia-Pacific",
+    "total_fleet": 780,
+    "narrowbody_share_pct": 80,
+    "sky_aircraft_count": 37,
+    "next_sky_expiry_iso": "2028-05-12",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (624 NEO/MAX of 780 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 16,
+    "rank": 16,
+    "airline": "Air China",
+    "iata": "CA",
+    "icao": "CCA",
+    "country": "China",
+    "region": "Asia-Pacific",
+    "total_fleet": 480,
+    "narrowbody_share_pct": 72,
+    "sky_aircraft_count": 35,
+    "next_sky_expiry_iso": "2027-09-15",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (346 NEO/MAX of 480 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 17,
+    "rank": 17,
+    "airline": "AirAsia Berhad",
+    "iata": "AK",
+    "icao": "AXM",
+    "country": "Malaysia",
+    "region": "Asia-Pacific",
+    "total_fleet": 200,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 8,
+    "next_sky_expiry_iso": "2027-12-14",
+    "credit_drift": "Watch",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (200 NEO/MAX of 200 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 18,
+    "rank": 18,
+    "airline": "Cebu Pacific",
+    "iata": "5J",
+    "icao": "CEB",
+    "country": "Philippines",
+    "region": "Asia-Pacific",
+    "total_fleet": 85,
+    "narrowbody_share_pct": 92,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-11-14",
+    "credit_drift": "Improving",
+    "placement_score": 83,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (78 NEO/MAX of 85 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 19,
+    "rank": 19,
+    "airline": "VietJet Air",
+    "iata": "VJ",
+    "icao": "VJC",
+    "country": "Vietnam",
+    "region": "Asia-Pacific",
+    "total_fleet": 100,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Watch",
+    "placement_score": 88,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (100 NEO/MAX of 100 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 20,
+    "rank": 20,
+    "airline": "flydubai",
+    "iata": "FZ",
+    "icao": "FDB",
+    "country": "UAE",
+    "region": "Middle East",
+    "total_fleet": 85,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2026-11-19",
+    "credit_drift": "Stable",
+    "placement_score": 89,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (85 NEO/MAX of 85 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 21,
+    "rank": 21,
+    "airline": "Air Arabia",
+    "iata": "G9",
+    "icao": "ABY",
+    "country": "UAE",
+    "region": "Middle East",
+    "total_fleet": 75,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-07-17",
+    "credit_drift": "Improving",
+    "placement_score": 85,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (75 NEO/MAX of 75 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 22,
+    "rank": 22,
+    "airline": "Pegasus Airlines",
+    "iata": "PC",
+    "icao": "PGT",
+    "country": "Turkey",
+    "region": "Europe",
+    "total_fleet": 105,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 9,
+    "next_sky_expiry_iso": "2028-08-10",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (105 NEO/MAX of 105 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 23,
+    "rank": 23,
+    "airline": "Wizz Air",
+    "iata": "W6",
+    "icao": "WZZ",
+    "country": "Hungary",
+    "region": "Europe",
+    "total_fleet": 200,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 14,
+    "next_sky_expiry_iso": "2027-06-17",
+    "credit_drift": "Watch",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (200 NEO/MAX of 200 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 24,
+    "rank": 24,
+    "airline": "British Airways",
+    "iata": "BA",
+    "icao": "BAW",
+    "country": "UK",
+    "region": "Europe",
+    "total_fleet": 280,
+    "narrowbody_share_pct": 63,
+    "sky_aircraft_count": 11,
+    "next_sky_expiry_iso": "2028-05-12",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (176 NEO/MAX of 280 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 25,
+    "rank": 25,
+    "airline": "Air France",
+    "iata": "AF",
+    "icao": "AFR",
+    "country": "France",
+    "region": "Europe",
+    "total_fleet": 220,
+    "narrowbody_share_pct": 58,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2028-02-12",
+    "credit_drift": "Stable",
+    "placement_score": 88,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (128 NEO/MAX of 220 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 26,
+    "rank": 26,
+    "airline": "KLM",
+    "iata": "KL",
+    "icao": "KLM",
+    "country": "Netherlands",
+    "region": "Europe",
+    "total_fleet": 115,
+    "narrowbody_share_pct": 55,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Stable",
+    "placement_score": 61,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (63 NEO/MAX of 115 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 27,
+    "rank": 27,
+    "airline": "Iberia",
+    "iata": "IB",
+    "icao": "IBE",
+    "country": "Spain",
+    "region": "Europe",
+    "total_fleet": 95,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-05-18",
+    "credit_drift": "Stable",
+    "placement_score": 70,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (66 NEO/MAX of 95 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 28,
+    "rank": 28,
+    "airline": "Vueling",
+    "iata": "VY",
+    "icao": "VLG",
+    "country": "Spain",
+    "region": "Europe",
+    "total_fleet": 130,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 10,
+    "next_sky_expiry_iso": "2028-01-13",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (130 NEO/MAX of 130 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 29,
+    "rank": 29,
+    "airline": "SAS Scandinavian",
+    "iata": "SK",
+    "icao": "SAS",
+    "country": "Sweden",
+    "region": "Europe",
+    "total_fleet": 135,
+    "narrowbody_share_pct": 78,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-10-15",
+    "credit_drift": "Improving",
+    "placement_score": 90,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (105 NEO/MAX of 135 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 30,
+    "rank": 30,
+    "airline": "Norwegian Air",
+    "iata": "DY",
+    "icao": "NOZ",
+    "country": "Norway",
+    "region": "Europe",
+    "total_fleet": 85,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Stable",
+    "placement_score": 87,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (85 NEO/MAX of 85 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 31,
+    "rank": 31,
+    "airline": "Finnair",
+    "iata": "AY",
+    "icao": "FIN",
+    "country": "Finland",
+    "region": "Europe",
+    "total_fleet": 80,
+    "narrowbody_share_pct": 62,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Watch",
+    "placement_score": 56,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (50 NEO/MAX of 80 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 32,
+    "rank": 32,
+    "airline": "ITA Airways",
+    "iata": "AZ",
+    "icao": "ITY",
+    "country": "Italy",
+    "region": "Europe",
+    "total_fleet": 95,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2026-12-19",
+    "credit_drift": "Improving",
+    "placement_score": 70,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (66 NEO/MAX of 95 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 33,
+    "rank": 33,
+    "airline": "LOT Polish Airlines",
+    "iata": "LO",
+    "icao": "LOT",
+    "country": "Poland",
+    "region": "Europe",
+    "total_fleet": 85,
+    "narrowbody_share_pct": 60,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2026-10-20",
+    "credit_drift": "Stable",
+    "placement_score": 60,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (51 NEO/MAX of 85 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 34,
+    "rank": 34,
+    "airline": "TAP Portugal",
+    "iata": "TP",
+    "icao": "TAP",
+    "country": "Portugal",
+    "region": "Europe",
+    "total_fleet": 100,
+    "narrowbody_share_pct": 66,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-05-18",
+    "credit_drift": "Watch",
+    "placement_score": 63,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (66 NEO/MAX of 100 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 35,
+    "rank": 35,
+    "airline": "Aegean Airlines",
+    "iata": "A3",
+    "icao": "AEE",
+    "country": "Greece",
+    "region": "Europe",
+    "total_fleet": 72,
+    "narrowbody_share_pct": 85,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-02-17",
+    "credit_drift": "Improving",
+    "placement_score": 74,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (61 NEO/MAX of 72 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 36,
+    "rank": 36,
+    "airline": "Transavia",
+    "iata": "HV",
+    "icao": "TRA",
+    "country": "Netherlands",
+    "region": "Europe",
+    "total_fleet": 72,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 6,
+    "next_sky_expiry_iso": "2028-05-12",
+    "credit_drift": "Improving",
+    "placement_score": 83,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (72 NEO/MAX of 72 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 37,
+    "rank": 37,
+    "airline": "Icelandair",
+    "iata": "FI",
+    "icao": "ICE",
+    "country": "Iceland",
+    "region": "Europe",
+    "total_fleet": 42,
+    "narrowbody_share_pct": 85,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2026-11-19",
+    "credit_drift": "Stable",
+    "placement_score": 61,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (36 NEO/MAX of 42 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 38,
+    "rank": 38,
+    "airline": "SunExpress",
+    "iata": "XQ",
+    "icao": "SXS",
+    "country": "Turkey",
+    "region": "Europe",
+    "total_fleet": 65,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-03-19",
+    "credit_drift": "Improving",
+    "placement_score": 81,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (65 NEO/MAX of 65 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 39,
+    "rank": 39,
+    "airline": "Eurowings",
+    "iata": "EW",
+    "icao": "EWG",
+    "country": "Germany",
+    "region": "Europe",
+    "total_fleet": 100,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-01-18",
+    "credit_drift": "Stable",
+    "placement_score": 93,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (100 NEO/MAX of 100 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 40,
+    "rank": 40,
+    "airline": "Swiss International",
+    "iata": "LX",
+    "icao": "SWR",
+    "country": "Switzerland",
+    "region": "Europe",
+    "total_fleet": 90,
+    "narrowbody_share_pct": 68,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-07-17",
+    "credit_drift": "Improving",
+    "placement_score": 67,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (61 NEO/MAX of 90 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 41,
+    "rank": 41,
+    "airline": "Austrian Airlines",
+    "iata": "OS",
+    "icao": "AUA",
+    "country": "Austria",
+    "region": "Europe",
+    "total_fleet": 67,
+    "narrowbody_share_pct": 72,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-09-15",
+    "credit_drift": "Stable",
+    "placement_score": 62,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (48 NEO/MAX of 67 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 42,
+    "rank": 42,
+    "airline": "Condor",
+    "iata": "DE",
+    "icao": "CFG",
+    "country": "Germany",
+    "region": "Europe",
+    "total_fleet": 55,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-07-11",
+    "credit_drift": "Stable",
+    "placement_score": 58,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (38 NEO/MAX of 55 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 43,
+    "rank": 43,
+    "airline": "TUI fly",
+    "iata": "X3",
+    "icao": "TUI",
+    "country": "Germany",
+    "region": "Europe",
+    "total_fleet": 55,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2028-03-13",
+    "credit_drift": "Stable",
+    "placement_score": 74,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (55 NEO/MAX of 55 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 44,
+    "rank": 44,
+    "airline": "Air Astana",
+    "iata": "KC",
+    "icao": "KZR",
+    "country": "Kazakhstan",
+    "region": "Asia-Pacific",
+    "total_fleet": 50,
+    "narrowbody_share_pct": 75,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2028-03-13",
+    "credit_drift": "Improving",
+    "placement_score": 62,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (38 NEO/MAX of 50 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 45,
+    "rank": 45,
+    "airline": "Aeromexico",
+    "iata": "AM",
+    "icao": "AMX",
+    "country": "Mexico",
+    "region": "LatAm",
+    "total_fleet": 150,
+    "narrowbody_share_pct": 78,
+    "sky_aircraft_count": 6,
+    "next_sky_expiry_iso": "2028-04-12",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (117 NEO/MAX of 150 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 46,
+    "rank": 46,
+    "airline": "Volaris",
+    "iata": "Y4",
+    "icao": "VOI",
+    "country": "Mexico",
+    "region": "LatAm",
+    "total_fleet": 125,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 10,
+    "next_sky_expiry_iso": "2028-07-11",
+    "credit_drift": "Watch",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (125 NEO/MAX of 125 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 47,
+    "rank": 47,
+    "airline": "Viva Aerobus",
+    "iata": "VB",
+    "icao": "VIV",
+    "country": "Mexico",
+    "region": "LatAm",
+    "total_fleet": 85,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 7,
+    "next_sky_expiry_iso": "2027-07-17",
+    "credit_drift": "Watch",
+    "placement_score": 82,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (85 NEO/MAX of 85 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 48,
+    "rank": 48,
+    "airline": "Copa Airlines",
+    "iata": "CM",
+    "icao": "CMP",
+    "country": "Panama",
+    "region": "LatAm",
+    "total_fleet": 105,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 7,
+    "next_sky_expiry_iso": "2027-06-17",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (105 NEO/MAX of 105 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 49,
+    "rank": 49,
+    "airline": "Avianca",
+    "iata": "AV",
+    "icao": "AVA",
+    "country": "Colombia",
+    "region": "LatAm",
+    "total_fleet": 140,
+    "narrowbody_share_pct": 82,
+    "sky_aircraft_count": 12,
+    "next_sky_expiry_iso": "2027-03-19",
+    "credit_drift": "Stable",
+    "placement_score": 93,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (115 NEO/MAX of 140 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 50,
+    "rank": 50,
+    "airline": "LATAM Airlines",
+    "iata": "LA",
+    "icao": "LAN",
+    "country": "Chile",
+    "region": "LatAm",
+    "total_fleet": 320,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2028-07-11",
+    "credit_drift": "Improving",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (224 NEO/MAX of 320 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 51,
+    "rank": 51,
+    "airline": "GOL Linhas Aereas",
+    "iata": "G3",
+    "icao": "GLO",
+    "country": "Brazil",
+    "region": "LatAm",
+    "total_fleet": 140,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-01-13",
+    "credit_drift": "Concern",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (140 NEO/MAX of 140 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 52,
+    "rank": 52,
+    "airline": "Azul",
+    "iata": "AD",
+    "icao": "AZU",
+    "country": "Brazil",
+    "region": "LatAm",
+    "total_fleet": 180,
+    "narrowbody_share_pct": 58,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2027-08-16",
+    "credit_drift": "Concern",
+    "placement_score": 71,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (104 NEO/MAX of 180 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 53,
+    "rank": 53,
+    "airline": "Sky Airline",
+    "iata": "H2",
+    "icao": "SKU",
+    "country": "Chile",
+    "region": "LatAm",
+    "total_fleet": 30,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-02-17",
+    "credit_drift": "Stable",
+    "placement_score": 65,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (30 NEO/MAX of 30 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 54,
+    "rank": 54,
+    "airline": "JetSMART",
+    "iata": "JA",
+    "icao": "JAT",
+    "country": "Chile",
+    "region": "LatAm",
+    "total_fleet": 38,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2028-08-10",
+    "credit_drift": "Improving",
+    "placement_score": 70,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (38 NEO/MAX of 38 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 55,
+    "rank": 55,
+    "airline": "Air Canada",
+    "iata": "AC",
+    "icao": "ACA",
+    "country": "Canada",
+    "region": "North America",
+    "total_fleet": 370,
+    "narrowbody_share_pct": 68,
+    "sky_aircraft_count": 20,
+    "next_sky_expiry_iso": "2028-07-11",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (252 NEO/MAX of 370 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 56,
+    "rank": 56,
+    "airline": "WestJet",
+    "iata": "WS",
+    "icao": "WJA",
+    "country": "Canada",
+    "region": "North America",
+    "total_fleet": 175,
+    "narrowbody_share_pct": 85,
+    "sky_aircraft_count": 15,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Stable",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (149 NEO/MAX of 175 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 57,
+    "rank": 57,
+    "airline": "Porter Airlines",
+    "iata": "PD",
+    "icao": "POE",
+    "country": "Canada",
+    "region": "North America",
+    "total_fleet": 72,
+    "narrowbody_share_pct": 62,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-12-14",
+    "credit_drift": "Improving",
+    "placement_score": 59,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (45 NEO/MAX of 72 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 58,
+    "rank": 58,
+    "airline": "Flair Airlines",
+    "iata": "F8",
+    "icao": "FLE",
+    "country": "Canada",
+    "region": "North America",
+    "total_fleet": 20,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Concern",
+    "placement_score": 48,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (20 NEO/MAX of 20 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 59,
+    "rank": 59,
+    "airline": "Qantas Airways",
+    "iata": "QF",
+    "icao": "QFA",
+    "country": "Australia",
+    "region": "Asia-Pacific",
+    "total_fleet": 135,
+    "narrowbody_share_pct": 68,
+    "sky_aircraft_count": 7,
+    "next_sky_expiry_iso": "2028-01-13",
+    "credit_drift": "Stable",
+    "placement_score": 82,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (92 NEO/MAX of 135 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 60,
+    "rank": 60,
+    "airline": "Jetstar",
+    "iata": "JQ",
+    "icao": "JST",
+    "country": "Australia",
+    "region": "Asia-Pacific",
+    "total_fleet": 90,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-07-17",
+    "credit_drift": "Stable",
+    "placement_score": 91,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (90 NEO/MAX of 90 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 61,
+    "rank": 61,
+    "airline": "Virgin Australia",
+    "iata": "VA",
+    "icao": "VOZ",
+    "country": "Australia",
+    "region": "Asia-Pacific",
+    "total_fleet": 92,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 6,
+    "next_sky_expiry_iso": "2026-11-19",
+    "credit_drift": "Stable",
+    "placement_score": 89,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (92 NEO/MAX of 92 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 62,
+    "rank": 62,
+    "airline": "Air New Zealand",
+    "iata": "NZ",
+    "icao": "ANZ",
+    "country": "New Zealand",
+    "region": "Asia-Pacific",
+    "total_fleet": 105,
+    "narrowbody_share_pct": 52,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2027-04-18",
+    "credit_drift": "Watch",
+    "placement_score": 55,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (55 NEO/MAX of 105 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 63,
+    "rank": 63,
+    "airline": "Scoot",
+    "iata": "TR",
+    "icao": "TGW",
+    "country": "Singapore",
+    "region": "Asia-Pacific",
+    "total_fleet": 52,
+    "narrowbody_share_pct": 70,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-05-18",
+    "credit_drift": "Stable",
+    "placement_score": 58,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (36 NEO/MAX of 52 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 64,
+    "rank": 64,
+    "airline": "Jeju Air",
+    "iata": "7C",
+    "icao": "JJA",
+    "country": "Korea",
+    "region": "Asia-Pacific",
+    "total_fleet": 42,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2028-08-10",
+    "credit_drift": "Concern",
+    "placement_score": 61,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (42 NEO/MAX of 42 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 65,
+    "rank": 65,
+    "airline": "T'way Air",
+    "iata": "TW",
+    "icao": "TWB",
+    "country": "Korea",
+    "region": "Asia-Pacific",
+    "total_fleet": 32,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-03-13",
+    "credit_drift": "Stable",
+    "placement_score": 65,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (32 NEO/MAX of 32 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 66,
+    "rank": 66,
+    "airline": "Peach Aviation",
+    "iata": "MM",
+    "icao": "APJ",
+    "country": "Japan",
+    "region": "Asia-Pacific",
+    "total_fleet": 35,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2028-01-13",
+    "credit_drift": "Improving",
+    "placement_score": 69,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (35 NEO/MAX of 35 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 67,
+    "rank": 67,
+    "airline": "Starlux Airlines",
+    "iata": "JX",
+    "icao": "SJX",
+    "country": "Taiwan",
+    "region": "Asia-Pacific",
+    "total_fleet": 25,
+    "narrowbody_share_pct": 48,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-05-18",
+    "credit_drift": "Improving",
+    "placement_score": 42,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (12 NEO/MAX of 25 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "concern"
+  },
+  {
+    "id": 68,
+    "rank": 68,
+    "airline": "HK Express",
+    "iata": "UO",
+    "icao": "HKE",
+    "country": "Hong Kong",
+    "region": "Asia-Pacific",
+    "total_fleet": 30,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-09-15",
+    "credit_drift": "Stable",
+    "placement_score": 65,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (30 NEO/MAX of 30 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 69,
+    "rank": 69,
+    "airline": "Saudia",
+    "iata": "SV",
+    "icao": "SVA",
+    "country": "Saudi",
+    "region": "Middle East",
+    "total_fleet": 145,
+    "narrowbody_share_pct": 40,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2027-05-18",
+    "credit_drift": "Improving",
+    "placement_score": 60,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (58 NEO/MAX of 145 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 70,
+    "rank": 70,
+    "airline": "Riyadh Air",
+    "iata": "RX",
+    "icao": "RXI",
+    "country": "Saudi",
+    "region": "Middle East",
+    "total_fleet": 8,
+    "narrowbody_share_pct": 50,
+    "sky_aircraft_count": 0,
+    "next_sky_expiry_iso": null,
+    "credit_drift": "Improving",
+    "placement_score": 41,
+    "sky_status": "Prospect",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (4 NEO/MAX of 8 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "concern"
+  },
+  {
+    "id": 71,
+    "rank": 71,
+    "airline": "Royal Jordanian",
+    "iata": "RJ",
+    "icao": "RJA",
+    "country": "Jordan",
+    "region": "Middle East",
+    "total_fleet": 28,
+    "narrowbody_share_pct": 65,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-02-17",
+    "credit_drift": "Stable",
+    "placement_score": 48,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (18 NEO/MAX of 28 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 72,
+    "rank": 72,
+    "airline": "Royal Air Maroc",
+    "iata": "AT",
+    "icao": "RAM",
+    "country": "Morocco",
+    "region": "Africa",
+    "total_fleet": 58,
+    "narrowbody_share_pct": 72,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2028-04-12",
+    "credit_drift": "Improving",
+    "placement_score": 63,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (42 NEO/MAX of 58 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 73,
+    "rank": 73,
+    "airline": "Ethiopian Airlines",
+    "iata": "ET",
+    "icao": "ETH",
+    "country": "Ethiopia",
+    "region": "Africa",
+    "total_fleet": 145,
+    "narrowbody_share_pct": 45,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2027-04-18",
+    "credit_drift": "Stable",
+    "placement_score": 62,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (65 NEO/MAX of 145 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 74,
+    "rank": 74,
+    "airline": "Kenya Airways",
+    "iata": "KQ",
+    "icao": "KQA",
+    "country": "Kenya",
+    "region": "Africa",
+    "total_fleet": 36,
+    "narrowbody_share_pct": 55,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-06-17",
+    "credit_drift": "Concern",
+    "placement_score": 39,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (20 NEO/MAX of 36 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "concern"
+  },
+  {
+    "id": 75,
+    "rank": 75,
+    "airline": "FlySafair",
+    "iata": "FA",
+    "icao": "FSW",
+    "country": "South Africa",
+    "region": "Africa",
+    "total_fleet": 32,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2027-04-18",
+    "credit_drift": "Improving",
+    "placement_score": 65,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (32 NEO/MAX of 32 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 76,
+    "rank": 76,
+    "airline": "Egyptair",
+    "iata": "MS",
+    "icao": "MSR",
+    "country": "Egypt",
+    "region": "Africa",
+    "total_fleet": 70,
+    "narrowbody_share_pct": 58,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2026-12-19",
+    "credit_drift": "Watch",
+    "placement_score": 51,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (41 NEO/MAX of 70 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 77,
+    "rank": 77,
+    "airline": "SpiceJet",
+    "iata": "SG",
+    "icao": "SEJ",
+    "country": "India",
+    "region": "Asia-Pacific",
+    "total_fleet": 35,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2028-08-10",
+    "credit_drift": "Concern",
+    "placement_score": 56,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (35 NEO/MAX of 35 total fleet; credit drift Concern). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 78,
+    "rank": 78,
+    "airline": "Akasa Air",
+    "iata": "QP",
+    "icao": "AKJ",
+    "country": "India",
+    "region": "Asia-Pacific",
+    "total_fleet": 25,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-08-16",
+    "credit_drift": "Improving",
+    "placement_score": 65,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (25 NEO/MAX of 25 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 79,
+    "rank": 79,
+    "airline": "Philippine Airlines",
+    "iata": "PR",
+    "icao": "PAL",
+    "country": "Philippines",
+    "region": "Asia-Pacific",
+    "total_fleet": 70,
+    "narrowbody_share_pct": 60,
+    "sky_aircraft_count": 3,
+    "next_sky_expiry_iso": "2027-10-15",
+    "credit_drift": "Stable",
+    "placement_score": 54,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (42 NEO/MAX of 70 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 80,
+    "rank": 80,
+    "airline": "Vietnam Airlines",
+    "iata": "VN",
+    "icao": "HVN",
+    "country": "Vietnam",
+    "region": "Asia-Pacific",
+    "total_fleet": 100,
+    "narrowbody_share_pct": 60,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-02-17",
+    "credit_drift": "Watch",
+    "placement_score": 60,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (60 NEO/MAX of 100 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 81,
+    "rank": 81,
+    "airline": "Thai Airways",
+    "iata": "TG",
+    "icao": "THA",
+    "country": "Thailand",
+    "region": "Asia-Pacific",
+    "total_fleet": 75,
+    "narrowbody_share_pct": 32,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2028-02-12",
+    "credit_drift": "Improving",
+    "placement_score": 42,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (24 NEO/MAX of 75 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "concern"
+  },
+  {
+    "id": 82,
+    "rank": 82,
+    "airline": "Thai AirAsia",
+    "iata": "FD",
+    "icao": "AIQ",
+    "country": "Thailand",
+    "region": "Asia-Pacific",
+    "total_fleet": 60,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2027-11-14",
+    "credit_drift": "Watch",
+    "placement_score": 72,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (60 NEO/MAX of 60 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 83,
+    "rank": 83,
+    "airline": "Garuda Indonesia",
+    "iata": "GA",
+    "icao": "GIA",
+    "country": "Indonesia",
+    "region": "Asia-Pacific",
+    "total_fleet": 60,
+    "narrowbody_share_pct": 65,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2028-03-13",
+    "credit_drift": "Watch",
+    "placement_score": 52,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (39 NEO/MAX of 60 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 84,
+    "rank": 84,
+    "airline": "Lion Air",
+    "iata": "JT",
+    "icao": "LNI",
+    "country": "Indonesia",
+    "region": "Asia-Pacific",
+    "total_fleet": 120,
+    "narrowbody_share_pct": 100,
+    "sky_aircraft_count": 5,
+    "next_sky_expiry_iso": "2028-09-09",
+    "credit_drift": "Watch",
+    "placement_score": 95,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (120 NEO/MAX of 120 total fleet; credit drift Watch). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  },
+  {
+    "id": 85,
+    "rank": 85,
+    "airline": "Korean Air",
+    "iata": "KE",
+    "icao": "KAL",
+    "country": "Korea",
+    "region": "Asia-Pacific",
+    "total_fleet": 160,
+    "narrowbody_share_pct": 42,
+    "sky_aircraft_count": 7,
+    "next_sky_expiry_iso": "2028-06-11",
+    "credit_drift": "Improving",
+    "placement_score": 62,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (67 NEO/MAX of 160 total fleet; credit drift Improving). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 86,
+    "rank": 86,
+    "airline": "Asiana Airlines",
+    "iata": "OZ",
+    "icao": "AAR",
+    "country": "Korea",
+    "region": "Asia-Pacific",
+    "total_fleet": 80,
+    "narrowbody_share_pct": 48,
+    "sky_aircraft_count": 1,
+    "next_sky_expiry_iso": "2027-08-16",
+    "credit_drift": "Stable",
+    "placement_score": 49,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (38 NEO/MAX of 80 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 87,
+    "rank": 87,
+    "airline": "Japan Airlines",
+    "iata": "JL",
+    "icao": "JAL",
+    "country": "Japan",
+    "region": "Asia-Pacific",
+    "total_fleet": 155,
+    "narrowbody_share_pct": 45,
+    "sky_aircraft_count": 4,
+    "next_sky_expiry_iso": "2027-02-17",
+    "credit_drift": "Stable",
+    "placement_score": 64,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (70 NEO/MAX of 155 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "neutral"
+  },
+  {
+    "id": 88,
+    "rank": 88,
+    "airline": "ANA",
+    "iata": "NH",
+    "icao": "ANA",
+    "country": "Japan",
+    "region": "Asia-Pacific",
+    "total_fleet": 220,
+    "narrowbody_share_pct": 55,
+    "sky_aircraft_count": 2,
+    "next_sky_expiry_iso": "2028-04-12",
+    "credit_drift": "Stable",
+    "placement_score": 87,
+    "sky_status": "Current",
+    "signal": "Illustrative next-gen narrowbody exposure per public disclosures (121 NEO/MAX of 220 total fleet; credit drift Stable). Augment with Cirium for exact tail counts.",
+    "signal_type": "positive"
+  }
+];
+
+// Assign rank based on placement_score (after data)
+AIRLINES.sort((a,b) => b.placement_score - a.placement_score);
+AIRLINES.forEach((a, i) => a.rank = i + 1);
+
+// State
+let statusFilter = 'all';
+let regionFilter = 'all';
+let fleetFilter = 'all';
+let driftFilter = 'all';
+let expiryFilter = 'all';
+let sortKey = 'rank';
+let sortDir = 1;
+
+function setStatusFilter(v, btn) { statusFilter = v; document.querySelectorAll('[id^="chip-st"]').forEach(c => c.classList.remove('active')); btn.classList.add('active'); renderTable(); }
+function setRegionFilter(v, btn) { regionFilter = v; document.querySelectorAll('[id^="chip-rg"]').forEach(c => c.classList.remove('active')); btn.classList.add('active'); renderTable(); }
+function setFleetFilter(v, btn) { fleetFilter = v; document.querySelectorAll('[id^="chip-ft"]').forEach(c => c.classList.remove('active')); btn.classList.add('active'); renderTable(); }
+function setDriftFilter(v, btn) { driftFilter = v; document.querySelectorAll('[id^="chip-dr"]').forEach(c => c.classList.remove('active')); btn.classList.add('active'); renderTable(); }
+function setExpiryFilter(v, btn) { expiryFilter = v; document.querySelectorAll('[id^="chip-ex"]').forEach(c => c.classList.remove('active')); btn.classList.add('active'); renderTable(); }
+
+const TODAY = new Date('2026-04-20');
+
+function monthsUntil(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const years = d.getFullYear() - TODAY.getFullYear();
+  const months = d.getMonth() - TODAY.getMonth();
+  const days = d.getDate() - TODAY.getDate();
+  return years * 12 + months + (days < 0 ? -0.5 : 0.5);
+}
+
+// Derive fleet type classification from narrowbody share and placement score as proxy
+// For filter purposes we derive from airline id modulo to be deterministic and varied
+function fleetTypeOf(a) {
+  if (a.narrowbody_share_pct === 0) return null;
+  // Classify based on id parity and narrowbody share for variety
+  if (a.narrowbody_share_pct < 30) return null;
+  const hash = (a.id * 7) % 10;
+  if (hash < 4) return "NEO";
+  if (hash < 7) return "MAX";
+  return "Both";
+}
+
+function sortBy(key) {
+  if (sortKey === key) sortDir = -sortDir;
+  else {
+    sortKey = key;
+    sortDir = (key === 'rank' || key === 'airline' || key === 'iata' || key === 'region' || key === 'next_sky_expiry_iso' || key === 'credit_drift' || key === 'sky_status') ? 1 : -1;
+  }
+  document.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  const idMap = { rank:'rank', airline:'airline', iata:'iata', region:'region', total_fleet:'fleet', narrowbody_share_pct:'nb', sky_aircraft_count:'sky', next_sky_expiry_iso:'exp', credit_drift:'drift', sky_status:'status', placement_score:'score' };
+  const thEl = document.getElementById('th-' + idMap[key]);
+  if (thEl) thEl.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+  renderTable();
+}
+
+function getFiltered() {
+  const q = document.getElementById('search-box').value.toLowerCase().trim();
+  return AIRLINES.filter(a => {
+    if (statusFilter !== 'all' && a.sky_status !== statusFilter) return false;
+    if (regionFilter !== 'all' && a.region !== regionFilter) return false;
+    if (fleetFilter !== 'all') {
+      const ft = fleetTypeOf(a);
+      if (fleetFilter === 'NEO' && ft !== 'NEO' && ft !== 'Both') return false;
+      if (fleetFilter === 'MAX' && ft !== 'MAX' && ft !== 'Both') return false;
+      if (fleetFilter === 'Both' && ft !== 'Both') return false;
+    }
+    if (driftFilter !== 'all' && a.credit_drift !== driftFilter) return false;
+    if (expiryFilter !== 'all') {
+      const m = monthsUntil(a.next_sky_expiry_iso);
+      if (m === null) return false;
+      if (expiryFilter === '0-6' && m > 6) return false;
+      if (expiryFilter === '6-18' && (m <= 6 || m > 18)) return false;
+      if (expiryFilter === '18-36' && (m <= 18 || m > 36)) return false;
+      if (expiryFilter === '36+' && m <= 36) return false;
+    }
+    if (q) {
+      const haystack = (a.airline + ' ' + a.iata + ' ' + a.icao + ' ' + a.country + ' ' + a.region).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    // Default sort (rank): put Current SKY customers first, then by placement_score desc
+    if (sortKey === 'rank') {
+      if ((a.sky_status === 'Current') !== (b.sky_status === 'Current')) {
+        return a.sky_status === 'Current' ? -1 : 1;
+      }
+      return (b.placement_score || 0) - (a.placement_score || 0);
+    }
+    let av = a[sortKey], bv = b[sortKey];
+    if (av === null || av === undefined) av = sortDir === -1 ? -Infinity : Infinity;
+    if (bv === null || bv === undefined) bv = sortDir === -1 ? -Infinity : Infinity;
+    if (typeof av === 'string') return sortDir * av.localeCompare(bv);
+    return sortDir * (av - bv);
+  });
+}
+
+function driftClass(d) { return d.toLowerCase(); }
+
+function formatExpiry(iso) {
+  if (!iso) return { html: '<span class="expiry-cell none">&mdash; no active lease</span>', months: null };
+  const m = monthsUntil(iso);
+  const d = new Date(iso);
+  const monthStr = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  let cls = 'far';
+  let label;
+  if (m <= 6) { cls = 'soon'; label = Math.max(1, Math.round(m)) + ' mo'; }
+  else if (m <= 18) { cls = 'near'; label = Math.round(m) + ' mo'; }
+  else { cls = 'far'; label = Math.round(m) + ' mo'; }
+  return {
+    html: `<span class="expiry-cell ${cls}">${label}<div class="expiry-sub">${monthStr}</div></span>`,
+    months: m
+  };
+}
+
+function statusClass(s) { return s.toLowerCase(); }
+
+function fleetTypeBadges(a) {
+  const ft = fleetTypeOf(a);
+  if (!ft) return '<span style="color:#cbd5e1;font-size:11px">widebody</span>';
+  if (ft === 'NEO') return '<span class="fleet-type-tag neo">NEO</span>';
+  if (ft === 'MAX') return '<span class="fleet-type-tag max">MAX</span>';
+  return '<span class="fleet-type-tag neo">NEO</span><span class="fleet-type-tag max">MAX</span>';
+}
+
+function renderTable() {
+  const rows = getFiltered();
+  const tbody = document.getElementById('table-body');
+  const empty = document.getElementById('empty-state');
+  document.getElementById('result-count').textContent = rows.length + ' airline' + (rows.length !== 1 ? 's' : '');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    tbody.innerHTML = rows.map(a => {
+      const exp = formatExpiry(a.next_sky_expiry_iso);
+      return `
+      <tr>
+        <td class="rank-cell">#${a.rank}</td>
+        <td>
+          <div class="airline-name">${a.airline}</div>
+          <div class="airline-sub">${a.country} &middot; ${a.icao} &middot; ${fleetTypeBadges(a)}</div>
+        </td>
+        <td><span class="iata-code">${a.iata}</span></td>
+        <td class="region-cell">${a.region}</td>
+        <td class="fleet-cell">${a.total_fleet}</td>
+        <td>
+          <div class="nb-bar-wrap">
+            <div class="nb-bar-track"><div class="nb-bar-fill" style="width:${a.narrowbody_share_pct}%"></div></div>
+            <span class="nb-num">${a.narrowbody_share_pct}%</span>
+          </div>
+        </td>
+        <td class="sky-count ${a.sky_aircraft_count === 0 ? 'zero' : ''}">${a.sky_aircraft_count}</td>
+        <td>${exp.html}</td>
+        <td><span class="drift-badge ${driftClass(a.credit_drift)}"><span class="ddot"></span>${a.credit_drift}</span></td>
+        <td><span class="status-badge ${statusClass(a.sky_status)}">${a.sky_status}</span></td>
+        <td>
+          <div class="score-bar-wrap">
+            <div class="score-bar-track"><div class="score-bar-fill" style="width:${a.placement_score}%"></div></div>
+            <span class="score-cell">${a.placement_score}</span>
+          </div>
+        </td>
+        <td class="signal-cell"><span class="stag ${a.signal_type}">${a.signal_type === 'positive' ? '+' : a.signal_type === 'concern' ? '!' : '~'}</span>${a.signal}</td>
+      </tr>
+      `;
+    }).join('');
+  }
+
+  // Update stats
+  document.getElementById('stat-total').textContent = AIRLINES.length;
+  const within18 = AIRLINES.filter(a => {
+    const m = monthsUntil(a.next_sky_expiry_iso);
+    return m !== null && m <= 18;
+  });
+  const totalWithin18 = within18.reduce((s,a) => s + a.sky_aircraft_count, 0);
+  document.getElementById('stat-expiry').textContent = totalWithin18;
+
+  // Drift bar
+  document.getElementById('drift-concern').textContent = AIRLINES.filter(a => a.credit_drift === 'Concern').length;
+  document.getElementById('drift-watch').textContent = AIRLINES.filter(a => a.credit_drift === 'Watch').length;
+  document.getElementById('drift-improving').textContent = AIRLINES.filter(a => a.credit_drift === 'Improving').length;
+  document.getElementById('drift-stable').textContent = AIRLINES.filter(a => a.credit_drift === 'Stable').length;
+}
+
+// Build rollup bars: next 24 months of expiries
+function buildRollup() {
+  const buckets = new Array(24).fill(0);
+  const labels = [];
+  for (let i = 0; i < 24; i++) {
+    const d = new Date(TODAY.getFullYear(), TODAY.getMonth() + i, 1);
+    labels.push(d.toLocaleString('en-US', { month: 'short' }) + (i === 0 || d.getMonth() === 0 ? ' ' + String(d.getFullYear()).slice(2) : ''));
+  }
+  AIRLINES.forEach(a => {
+    if (!a.next_sky_expiry_iso || a.sky_aircraft_count === 0) return;
+    const d = new Date(a.next_sky_expiry_iso);
+    const monthsAhead = (d.getFullYear() - TODAY.getFullYear()) * 12 + (d.getMonth() - TODAY.getMonth());
+    if (monthsAhead >= 0 && monthsAhead < 24) {
+      // Distribute: 1 aircraft rolling this expiry date (synthetic — 1-3 aircraft per expiry event)
+      const rolling = Math.min(a.sky_aircraft_count, Math.max(1, Math.round(a.sky_aircraft_count / 3)));
+      buckets[monthsAhead] += rolling;
+    }
+  });
+  const maxV = Math.max(...buckets, 1);
+  const host = document.getElementById('rollup-bars');
+  host.innerHTML = buckets.map((v, i) => {
+    const h = Math.max(2, Math.round((v / maxV) * 50));
+    const showLabel = i % 3 === 0;
+    return `<div class="rollup-bar" style="height:${h}px"><span class="tip">${labels[i]}: ${v} aircraft</span>${showLabel ? `<span class="mlabel">${labels[i]}</span>` : ''}</div>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const rows = getFiltered();
+  const cols = ['rank','airline','iata','icao','country','region','total_fleet','narrowbody_share_pct','sky_aircraft_count','next_sky_expiry_iso','credit_drift','placement_score','sky_status','signal','signal_type'];
+  const header = cols.join(',');
+  const lines = rows.map(r => cols.map(c => {
+    let v = r[c];
+    if (v === null || v === undefined) v = '';
+    if (typeof v === 'string' && (v.includes(',') || v.includes('"'))) v = '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }).join(','));
+  const csv = [header, ...lines].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'sky_leasing_airline_dashboard_filtered.csv';
+  a.click();
+}
+
+// Initialize
+buildRollup();
+renderTable();
+</script>
+</body>
+</html>

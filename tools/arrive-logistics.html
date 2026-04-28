@@ -1,0 +1,3985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrive Logistics | Carrier Universe &amp; Target-Account Intelligence</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f1f5f9;color:#1e293b;font-size:14px;-webkit-font-smoothing:antialiased}
+
+/* ---- Header ---- */
+.page-header{background:linear-gradient(135deg,#0d2137 0%,#1a3a5c 100%);color:white;padding:22px 28px 20px;border-bottom:3px solid #10b981}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.hdr-title h1{font-size:21px;font-weight:800;letter-spacing:-0.4px}
+.hdr-title .subtitle{font-size:11px;color:#94a3b8;margin-top:4px}
+.brand-mark{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:#34d399;letter-spacing:0.5px;text-transform:uppercase}
+.brand-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,0.2)}
+.header-meta{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.stat-pill{background:rgba(255,255,255,0.07);border-radius:8px;padding:10px 14px;border:1px solid rgba(255,255,255,0.1);min-width:110px}
+.stat-pill .label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;line-height:1}
+.stat-pill .value{font-size:19px;font-weight:800;color:white;line-height:1.2;margin-top:3px}
+.stat-pill .sub{font-size:10px;color:#94a3b8;margin-top:3px;line-height:1.3;font-weight:500}
+.stat-pill.grn .value{color:#34d399}
+.stat-pill.t1 .value{color:#fbbf24}
+.stat-pill.t2 .value{color:#60a5fa}
+.stat-pill.t3 .value{color:#a3b4c6}
+.stat-pill.sow .value{color:#5eead4}
+
+/* ---- Filter bar ---- */
+.filter-bar{background:white;border-bottom:1px solid #e2e8f0;padding:11px 28px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;row-gap:8px}
+.fl-section{display:flex;align-items:center;gap:8px;padding-right:16px;margin-right:0;border-right:1px solid #e2e8f0;flex-shrink:0}
+.fl-section:last-child{border-right:none}
+.fl-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;white-space:nowrap}
+.chip{padding:4px 11px;border-radius:20px;border:1.5px solid #cbd5e1;background:white;color:#475569;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.12s;white-space:nowrap}
+.chip:hover{border-color:#10b981;color:#065f46}
+.chip.active{background:#1a3a5c;border-color:#1a3a5c;color:white}
+.chip.t1-active{background:#d97706;border-color:#d97706;color:white}
+.chip.t2-active{background:#2563eb;border-color:#2563eb;color:white}
+.chip.t3-active{background:#64748b;border-color:#64748b;color:white}
+.chip.ind-active{background:#10b981;border-color:#10b981;color:white}
+.chip.reg-active{background:#0891b2;border-color:#0891b2;color:white}
+.chip.sts-active{background:#7c3aed;border-color:#7c3aed;color:white}
+.divider{width:1px;height:26px;background:#e2e8f0;flex-shrink:0}
+.search-input{padding:5px 12px;border:1.5px solid #cbd5e1;border-radius:20px;font-size:12px;outline:none;min-width:180px;color:#1e293b}
+.search-input:focus{border-color:#10b981}
+.result-count{font-size:12px;color:#94a3b8;margin-left:auto;white-space:nowrap;font-weight:500}
+.export-btn{padding:5px 14px;background:white;border:1.5px solid #cbd5e1;border-radius:6px;font-size:12px;color:#475569;cursor:pointer;font-weight:500}
+.export-btn:hover{border-color:#10b981;color:#065f46}
+
+/* ---- Tier info panel ---- */
+.tier-info{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:10px 28px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:11px;color:#475569}
+.tier-info-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px}
+.tier-block{display:flex;align-items:center;gap:6px;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:5px 10px;line-height:1.35}
+.tier-block strong{color:#0d2137;font-weight:700}
+.tier-marker{width:4px;height:28px;border-radius:2px;flex-shrink:0}
+.tier-marker.t1{background:#d97706}
+.tier-marker.t2{background:#2563eb}
+.tier-marker.t3{background:#64748b}
+.tier-block .desc{font-size:10px;color:#64748b;margin-top:1px}
+
+/* ---- Table ---- */
+.table-wrap{padding:14px 28px 24px}
+.table-container{background:white;border-radius:10px;border:1px solid #e2e8f0;overflow-x:auto;-webkit-overflow-scrolling:touch;box-shadow:0 1px 3px rgba(15,23,42,0.04)}
+#main-table{min-width:1320px;table-layout:auto;width:100%}
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead tr{background:#f8fafc;border-bottom:2px solid #e2e8f0}
+th{padding:9px 10px;text-align:left;font-size:10.5px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;white-space:nowrap;user-select:none;border-bottom:2px solid #e2e8f0}
+th:hover{color:#0d2137}
+th.sort-asc::after{content:" \25B2";font-size:9px;color:#10b981}
+th.sort-desc::after{content:" \25BC";font-size:9px;color:#10b981}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:background 0.1s}
+tbody tr:hover{background:#f8fafc}
+tbody tr:last-child{border-bottom:none}
+td{padding:8px 10px;vertical-align:middle;font-size:12px;border-bottom:1px solid #f1f5f9}
+
+.rank-cell{font-size:11px;color:#94a3b8;width:40px;font-weight:600;font-variant-numeric:tabular-nums}
+.shipper-name{font-weight:700;color:#0d2137;font-size:12.5px;line-height:1.25}
+.shipper-sub{font-size:10px;color:#94a3b8;margin-top:2px}
+.ind-cell{font-size:11px;color:#475569;white-space:nowrap}
+.hq-cell{font-size:11px;color:#475569;white-space:nowrap}
+.num-cell{font-size:12px;color:#0d2137;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sow-wrap{display:flex;align-items:center;gap:6px;min-width:96px}
+.sow-track{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;max-width:60px}
+.sow-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#10b981,#34d399)}
+.sow-num{font-size:11px;font-weight:700;color:#065f46;white-space:nowrap;min-width:34px;text-align:right}
+.sow-num.low{color:#dc2626}
+.sow-num.med{color:#d97706}
+
+/* ---- Gap sparkline/bar ---- */
+.gap-wrap{display:flex;align-items:center;gap:8px;min-width:130px}
+.gap-bar-track{flex:1;height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden;max-width:90px;position:relative;border:1px solid #e2e8f0}
+.gap-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#10b981 0%,#059669 100%);position:relative}
+.gap-bar-fill.t1{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.gap-bar-fill.t2{background:linear-gradient(90deg,#3b82f6,#2563eb)}
+.gap-bar-fill.t3{background:linear-gradient(90deg,#94a3b8,#64748b)}
+.gap-num{font-size:12px;font-weight:700;color:#065f46;white-space:nowrap;min-width:46px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ---- Badges ---- */
+.tier-badge{display:inline-block;padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;letter-spacing:0.3px;white-space:nowrap}
+.tier-badge.t1{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+.tier-badge.t2{background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd}
+.tier-badge.t3{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+.status-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:0.2px}
+.status-current{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+.status-prospect{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.status-lapsed{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.signal-cell{font-size:11px;color:#475569;line-height:1.35;max-width:260px}
+.signal-type{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;padding:1px 6px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.st-dc{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.st-rfp{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.st-10k{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.st-mna{background:#faf5ff;color:#6b21a8;border:1px solid #ddd6fe}
+.st-cap{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.st-esg{background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4}
+.st-exec{background:#fef9c3;color:#854d0e;border:1px solid #fde68a}
+.st-geo{background:#ecfeff;color:#0891b2;border:1px solid #a5f3fc}
+
+.owner-cell{font-size:11px;color:#0d2137;white-space:nowrap}
+.owner-avatar{display:inline-flex;align-items:center;gap:5px}
+.avatar-circle{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);color:white;font-size:9px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-0.2px}
+.avatar-circle.ae{background:linear-gradient(135deg,#3b82f6,#1d4ed8)}
+.avatar-circle.sdr{background:linear-gradient(135deg,#8b5cf6,#6d28d9)}
+.avatar-circle.inside{background:linear-gradient(135deg,#64748b,#475569)}
+.owner-role{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.4px;font-weight:600}
+.owner-name{font-weight:600;color:#334155;line-height:1.15}
+
+/* ---- Empty state ---- */
+.empty-state{padding:48px;text-align:center;color:#94a3b8}
+.empty-state .icon{font-size:13px;margin-bottom:8px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+
+/* ---- Footer ---- */
+.page-footer{padding:16px 28px 24px;font-size:10.5px;color:#64748b;border-top:1px solid #e2e8f0;background:white;line-height:1.5}
+.page-footer strong{color:#334155;font-weight:700}
+.page-footer .methodology{background:#f8fafc;border-left:3px solid #10b981;padding:10px 14px;border-radius:4px;margin-top:8px;color:#475569;font-size:10.5px}
+
+/* ---- Responsive ---- */
+@media (max-width:900px){
+  .page-header{padding:18px 16px 16px}
+  .filter-bar{padding:10px 16px}
+  .tier-info{padding:10px 16px}
+  .table-wrap{padding:14px 12px 24px}
+  .page-footer{padding:14px 16px}
+  .header-meta{gap:6px}
+  .stat-pill{min-width:0;flex:1 1 140px;padding:9px 12px}
+  .stat-pill .value{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="hdr-top">
+    <div class="hdr-title">
+      <h1>Arrive Logistics &middot; Carrier Universe &amp; Target-Account Intelligence</h1>
+      <div class="subtitle">Active US for-hire carriers from FMCSA Company Census &middot; scored by fleet size &middot; tier handoff rules</div>
+    </div>
+    <div class="brand-mark"><span class="brand-dot"></span>ATL Portfolio &middot; Illustrative Model</div>
+  </div>
+  <div class="header-meta">
+    <div class="stat-pill grn"><div class="label">Scored Carriers</div><div class="value">185</div><div class="sub">US active for-hire universe</div></div>
+    <div class="stat-pill sow"><div class="label">Addressable Fleet Rev</div><div class="value">$145.3B</div><div class="sub">est. power-unit × $200K proxy</div></div>
+    <div class="stat-pill t1"><div class="label">Tier 1 / Strategic</div><div class="value">55</div><div class="sub">&ge;1,000 power units &middot; Named AE</div></div>
+    <div class="stat-pill t2"><div class="label">Tier 2 / Growth</div><div class="value">64</div><div class="sub">250-999 PU &middot; Regional AE</div></div>
+    <div class="stat-pill t3"><div class="label">Tier 3 / SMB-Inside</div><div class="value">66</div><div class="sub">100-249 PU &middot; Inside sales</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="fl-section">
+    <span class="fl-label">Tier</span>
+    <div class="chip active" data-tier="all" onclick="setTierFilter('all',this)">All</div>
+    <div class="chip" data-tier="Tier 1" onclick="setTierFilter('Tier 1',this)">Tier 1 &middot; Strategic</div>
+    <div class="chip" data-tier="Tier 2" onclick="setTierFilter('Tier 2',this)">Tier 2 &middot; Growth</div>
+    <div class="chip" data-tier="Tier 3" onclick="setTierFilter('Tier 3',this)">Tier 3 &middot; SMB/Inside</div>
+  </div>
+  <div class="fl-section">
+    <span class="fl-label">Industry</span>
+    <div class="chip active" data-ind="all" onclick="setIndFilter('all',this)">All</div>
+    <div class="chip" data-ind="Retail" onclick="setIndFilter('Retail',this)">Retail</div>
+    <div class="chip" data-ind="CPG" onclick="setIndFilter('CPG',this)">CPG</div>
+    <div class="chip" data-ind="Food & Beverage" onclick="setIndFilter('Food & Beverage',this)">Food &amp; Bev</div>
+    <div class="chip" data-ind="Auto" onclick="setIndFilter('Auto',this)">Auto</div>
+    <div class="chip" data-ind="Industrial" onclick="setIndFilter('Industrial',this)">Industrial</div>
+    <div class="chip" data-ind="Chemicals" onclick="setIndFilter('Chemicals',this)">Chemicals</div>
+    <div class="chip" data-ind="Building Materials" onclick="setIndFilter('Building Materials',this)">Building Mat.</div>
+    <div class="chip" data-ind="E-comm" onclick="setIndFilter('E-comm',this)">E-comm</div>
+    <div class="chip" data-ind="Other" onclick="setIndFilter('Other',this)">Other</div>
+  </div>
+  <div class="fl-section">
+    <span class="fl-label">Region</span>
+    <div class="chip active" data-reg="all" onclick="setRegFilter('all',this)">All</div>
+    <div class="chip" data-reg="Southeast" onclick="setRegFilter('Southeast',this)">SE</div>
+    <div class="chip" data-reg="Midwest" onclick="setRegFilter('Midwest',this)">MW</div>
+    <div class="chip" data-reg="Northeast" onclick="setRegFilter('Northeast',this)">NE</div>
+    <div class="chip" data-reg="Southwest" onclick="setRegFilter('Southwest',this)">SW</div>
+    <div class="chip" data-reg="West" onclick="setRegFilter('West',this)">W</div>
+  </div>
+  <input class="search-input" id="search-box" type="text" placeholder="Search carrier or HQ city..." oninput="renderTable()">
+  <button class="export-btn" onclick="exportCSV()">Export CSV</button>
+  <div class="result-count" id="result-count">-- carriers</div>
+</div>
+
+<div class="tier-info">
+  <span class="tier-info-label">Tier handoff rules:</span>
+  <div class="tier-block"><span class="tier-marker t1"></span><div><strong>T1 Strategic</strong> &middot; &ge;1,000 power units <em>or</em> $200M+ est. rev &middot; <span class="desc">Named AE &middot; QBR &middot; annual carrier-dev review</span></div></div>
+  <div class="tier-block"><span class="tier-marker t2"></span><div><strong>T2 Growth</strong> &middot; 250-999 power units &middot; <span class="desc">Regional AE &middot; quarterly review &middot; monthly check-in</span></div></div>
+  <div class="tier-block"><span class="tier-marker t3"></span><div><strong>T3 SMB/Inside</strong> &middot; 100-249 power units &middot; <span class="desc">Inside sales &middot; email nurture &middot; carrier-portal onboarding</span></div></div>
+</div>
+
+<div class="table-wrap">
+  <div class="table-container">
+    <table id="main-table">
+      <thead>
+        <tr>
+          <th onclick="sortBy('rank')" id="th-rank">#</th>
+          <th onclick="sortBy('name')" id="th-name">Carrier</th>
+          <th onclick="sortBy('industry')" id="th-industry">Vertical (illustrative)</th>
+          <th onclick="sortBy('hq')" id="th-hq">HQ</th>
+          <th onclick="sortBy('annual_freight_spend_m')" id="th-spend" style="text-align:right">Est. Fleet Revenue</th>
+          <th onclick="sortBy('lanes_est')" id="th-lanes" style="text-align:right">Lanes</th>
+          <th onclick="sortBy('priority_tier')" id="th-tier">Tier</th>
+          <th id="th-signal">Signal</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div class="icon">No results</div>
+      <div>Adjust filters to see carriers</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-footer">
+  <div><strong>Data sources:</strong> FMCSA Company Census File (data.transportation.gov, dataset az4n-8mr2, pulled 2026-04-23), MCS-150 annual mileage reports, carrier operation classifications, cargo-class flags. Est. fleet revenue is a proxy from Power Units × $200K (general-freight truckload industry rule of thumb; not a company-reported figure).</div>
+  <div style="margin-top:4px"><strong>Scoring model:</strong> Fleet size rank (power units, weighted 0.5) + estimated revenue band (0.25) + cargo-mix alignment to Arrive's van/reefer/flatbed books (0.15) + MCS-150 annual mileage as utilization proxy (0.10).</div>
+  <div class="methodology"><strong>Illustrative model.</strong> Carrier universe derived from FMCSA Company Census File filtered to active US for-hire & contract carriers with 100-25,000 power units and plausible driver-to-truck ratios. Est. fleet revenue is a power-unit × $200K proxy, not actual freight spend or company-reported revenue. The "Vertical" column is illustratively derived from carrier name keywords and is not authoritative; treat as directional only.</div>
+</div>
+
+<script>
+/* ============================================================
+   Arrive Logistics - Shipper Target-Account Intelligence
+   Dataset: ~140 records spanning Tier 1 / Tier 2 / Tier 3
+   ============================================================ */
+
+const SHIPPERS = [
+  {
+    "id": 1,
+    "rank": 1,
+    "name": "AT&T",
+    "industry": "Other",
+    "hq_city": "Saint Louis",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 3725.4,
+    "lanes_est": 33528,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 22.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 270.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 2,
+    "rank": 2,
+    "name": "FedEx Freight",
+    "industry": "Retail",
+    "hq_city": "Harrison",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 3526.6,
+    "lanes_est": 31739,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 21.2,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 922.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 3,
+    "rank": 3,
+    "name": "Rolling Frito Lay Sales LP",
+    "industry": "Retail",
+    "hq_city": "Plano",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 3127.0,
+    "lanes_est": 28143,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 18.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 265.3M mi · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 4,
+    "rank": 4,
+    "name": "Amazon Logistics INC",
+    "industry": "Retail",
+    "hq_city": "Seattle",
+    "hq_state": "WA",
+    "region": "West",
+    "annual_freight_spend_m": 3051.8,
+    "lanes_est": 27466,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 18.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "R. Klein",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 346.1M mi · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 5,
+    "rank": 5,
+    "name": "Ogm Logistics LLC",
+    "industry": "Retail",
+    "hq_city": "Miami",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 3000.2,
+    "lanes_est": 27001,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 18.0,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 0K mi · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 6,
+    "rank": 6,
+    "name": "Wal-Mart Transportation LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Bentonville",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 2723.6,
+    "lanes_est": 24512,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 16.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 1336.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 7,
+    "rank": 7,
+    "name": "Swift Transportation CO Of Arizona LLC",
+    "industry": "Auto",
+    "hq_city": "Phoenix",
+    "hq_state": "AZ",
+    "region": "Southwest",
+    "annual_freight_spend_m": 2588.0,
+    "lanes_est": 23292,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 15.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 1258.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 8,
+    "rank": 8,
+    "name": "Old Dominion Freight Line INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Thomasville",
+    "hq_state": "NC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 2194.8,
+    "lanes_est": 19753,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 13.2,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 847.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 9,
+    "rank": 9,
+    "name": "Durham School Services",
+    "industry": "Other",
+    "hq_city": "Warrenville",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 2138.0,
+    "lanes_est": 19242,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 12.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 101.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 10,
+    "rank": 10,
+    "name": "Greenwood Motor Lines INC",
+    "industry": "Chemicals",
+    "hq_city": "Wilmington",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 2059.2,
+    "lanes_est": 18532,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 12.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 610.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 11,
+    "rank": 11,
+    "name": "XPO Logistics Freight INC",
+    "industry": "Chemicals",
+    "hq_city": "Ann Arbor",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 2052.0,
+    "lanes_est": 18468,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 12.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 797.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 12,
+    "rank": 12,
+    "name": "Schneider National Carriers INC",
+    "industry": "Auto",
+    "hq_city": "Green Bay",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 1973.2,
+    "lanes_est": 17758,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 11.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 847.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 13,
+    "rank": 13,
+    "name": "Werner Enterprises INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Omaha",
+    "hq_state": "NE",
+    "region": "Midwest",
+    "annual_freight_spend_m": 1972.6,
+    "lanes_est": 17753,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 11.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 796.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 14,
+    "rank": 14,
+    "name": "Estes",
+    "industry": "Food & Beverage",
+    "hq_city": "Richmond",
+    "hq_state": "VA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1961.0,
+    "lanes_est": 17649,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 11.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 620.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 15,
+    "rank": 15,
+    "name": "New Bern Transport Corporation",
+    "industry": "Food & Beverage",
+    "hq_city": "Purchase",
+    "hq_state": "NY",
+    "region": "Northeast",
+    "annual_freight_spend_m": 1957.2,
+    "lanes_est": 17614,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 11.7,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "L. Ishii",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 272.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 16,
+    "rank": 16,
+    "name": "Nutrien Ag Solutions",
+    "industry": "Auto",
+    "hq_city": "Loveland",
+    "hq_state": "CO",
+    "region": "West",
+    "annual_freight_spend_m": 1873.4,
+    "lanes_est": 16860,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 11.2,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "R. Klein",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 77.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 17,
+    "rank": 17,
+    "name": "Asplundh Tree Expert LLC",
+    "industry": "Building Materials",
+    "hq_city": "Willow Grove",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 1623.0,
+    "lanes_est": 14607,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 9.7,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "L. Ishii",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 45.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 18,
+    "rank": 18,
+    "name": "Prime INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Springfield",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 1583.8,
+    "lanes_est": 14254,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 9.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 831.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 19,
+    "rank": 19,
+    "name": "United Rentals",
+    "industry": "Auto",
+    "hq_city": "Irving",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 1557.8,
+    "lanes_est": 14020,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 9.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 228.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 20,
+    "rank": 20,
+    "name": "Saia Motor Freight Line LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Johns Creek",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1396.0,
+    "lanes_est": 12564,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 8.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 496.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 21,
+    "rank": 21,
+    "name": "Cintas",
+    "industry": "Chemicals",
+    "hq_city": "Mason",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 1268.2,
+    "lanes_est": 11413,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 7.6,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 77.5M mi · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 22,
+    "rank": 22,
+    "name": "Performance Transportation LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Richmond",
+    "hq_state": "VA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1268.0,
+    "lanes_est": 11412,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 7.6,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 275.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 23,
+    "rank": 23,
+    "name": "Smyrna Ready Mix Concrete LLC",
+    "industry": "Building Materials",
+    "hq_city": "Murfreesboro",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1255.6,
+    "lanes_est": 11300,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 7.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 90.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 24,
+    "rank": 24,
+    "name": "Penske Logistics",
+    "industry": "Food & Beverage",
+    "hq_city": "Reading",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 1247.4,
+    "lanes_est": 11226,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 7.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "L. Ishii",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 475.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 25,
+    "rank": 25,
+    "name": "Sunbelt Rentals",
+    "industry": "Chemicals",
+    "hq_city": "Fort Mill",
+    "hq_state": "SC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1246.8,
+    "lanes_est": 11221,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 7.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 143.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 26,
+    "rank": 26,
+    "name": "US Xpress",
+    "industry": "Auto",
+    "hq_city": "Chattanooga",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1147.6,
+    "lanes_est": 10328,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 6.9,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 517.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 27,
+    "rank": 27,
+    "name": "Compass Group USA INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Charlotte",
+    "hq_state": "NC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1142.6,
+    "lanes_est": 10283,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 6.9,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 168.0M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 28,
+    "rank": 28,
+    "name": "Trugreen Limited Partnership",
+    "industry": "Other",
+    "hq_city": "Memphis",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 1073.0,
+    "lanes_est": 9657,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 6.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 85.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 29,
+    "rank": 29,
+    "name": "Crete Carrier Corporation",
+    "industry": "Food & Beverage",
+    "hq_city": "Lincoln",
+    "hq_state": "NE",
+    "region": "Midwest",
+    "annual_freight_spend_m": 1071.8,
+    "lanes_est": 9646,
+    "arrive_sow_pct": 0.3,
+    "gap_m": 6.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 614.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "10k"
+  },
+  {
+    "id": 30,
+    "rank": 30,
+    "name": "Central Transport",
+    "industry": "Retail",
+    "hq_city": "Warren",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 988.8,
+    "lanes_est": 8899,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2022: 229.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 31,
+    "rank": 31,
+    "name": "US Foods",
+    "industry": "Food & Beverage",
+    "hq_city": "Rosemont",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 988.2,
+    "lanes_est": 8893,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 188.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 32,
+    "rank": 32,
+    "name": "Bfs Asset Holdings LLC",
+    "industry": "Building Materials",
+    "hq_city": "Raleigh",
+    "hq_state": "NC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 984.6,
+    "lanes_est": 8861,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 93.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 33,
+    "rank": 33,
+    "name": "Roofline INC",
+    "industry": "Chemicals",
+    "hq_city": "Mckinney",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 966.8,
+    "lanes_est": 8701,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 1012.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 34,
+    "rank": 34,
+    "name": "Amerigas Propane LP",
+    "industry": "Chemicals",
+    "hq_city": "King Of Prussia",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 966.2,
+    "lanes_est": 8695,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "L. Ishii",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 89.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 35,
+    "rank": 35,
+    "name": "American Builders & Contractors Supply CO INC",
+    "industry": "Building Materials",
+    "hq_city": "Beloit",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 959.6,
+    "lanes_est": 8636,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 93.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 36,
+    "rank": 36,
+    "name": "United Van Lines",
+    "industry": "Auto",
+    "hq_city": "Fenton",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 946.2,
+    "lanes_est": 8515,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 15.1,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 85.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 37,
+    "rank": 37,
+    "name": "Aaa Cooper Transportation",
+    "industry": "Chemicals",
+    "hq_city": "Dothan",
+    "hq_state": "AL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 926.0,
+    "lanes_est": 8334,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 14.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 302.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 38,
+    "rank": 38,
+    "name": "ABF Freight System INC",
+    "industry": "Chemicals",
+    "hq_city": "Fort Smith",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 920.8,
+    "lanes_est": 8287,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 14.7,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 313.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 39,
+    "rank": 39,
+    "name": "Beverly Anderson",
+    "industry": "Other",
+    "hq_city": "Gilmer",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 900.2,
+    "lanes_est": 8101,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 14.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2009: 2K mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 40,
+    "rank": 40,
+    "name": "Ryder Transportation Solutions LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Coral Gables",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 894.2,
+    "lanes_est": 8047,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 14.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 375.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 41,
+    "rank": 41,
+    "name": "CRST Expedited INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Cedar Rapids",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 872.4,
+    "lanes_est": 7851,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 14.0,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 337.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 42,
+    "rank": 42,
+    "name": "Bimbo Bakeries USA INC",
+    "industry": "Other",
+    "hq_city": "Conshohocken",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 861.6,
+    "lanes_est": 7754,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "L. Ishii",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 61.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 43,
+    "rank": 43,
+    "name": "Cr England",
+    "industry": "Food & Beverage",
+    "hq_city": "Salt Lake City",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 850.8,
+    "lanes_est": 7657,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.6,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "R. Klein",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2022: 352.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 44,
+    "rank": 44,
+    "name": "Tforce Freight",
+    "industry": "Chemicals",
+    "hq_city": "Henrico",
+    "hq_state": "VA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 831.0,
+    "lanes_est": 7479,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 242.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 45,
+    "rank": 45,
+    "name": "Ferguson Enterprises LLC",
+    "industry": "Chemicals",
+    "hq_city": "Newport News",
+    "hq_state": "VA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 831.0,
+    "lanes_est": 7479,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 96.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 46,
+    "rank": 46,
+    "name": "Vestis Services LLC",
+    "industry": "Other",
+    "hq_city": "Roswell",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 830.0,
+    "lanes_est": 7470,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.3,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 99.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 47,
+    "rank": 47,
+    "name": "Stericycle INC",
+    "industry": "CPG",
+    "hq_city": "Bannockburn",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 826.2,
+    "lanes_est": 7435,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 13.2,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 78.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 48,
+    "rank": 48,
+    "name": "Averitt",
+    "industry": "Chemicals",
+    "hq_city": "Cookeville",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 809.2,
+    "lanes_est": 7282,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 12.9,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 305.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 49,
+    "rank": 49,
+    "name": "Annett Holdings INC",
+    "industry": "Building Materials",
+    "hq_city": "Des Moines",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 776.6,
+    "lanes_est": 6989,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 12.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 314.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 50,
+    "rank": 50,
+    "name": "Duke Energy Business Services LLC",
+    "industry": "Auto",
+    "hq_city": "Charlotte",
+    "hq_state": "NC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 772.2,
+    "lanes_est": 6949,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 12.4,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2023: 37.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 51,
+    "rank": 51,
+    "name": "Equipment Share",
+    "industry": "Auto",
+    "hq_city": "Columbia",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 754.2,
+    "lanes_est": 6787,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 12.1,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 142.6M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 52,
+    "rank": 52,
+    "name": "Marten Transport LTD",
+    "industry": "Food & Beverage",
+    "hq_city": "Mondovi",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 739.4,
+    "lanes_est": 6654,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 11.8,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "D. Morales",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2024: 363.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 53,
+    "rank": 53,
+    "name": "Alsco INC",
+    "industry": "CPG",
+    "hq_city": "Salt Lake City",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 715.8,
+    "lanes_est": 6442,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 11.5,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "R. Klein",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 35.4M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 54,
+    "rank": 54,
+    "name": "Builder Services Group INC",
+    "industry": "Building Materials",
+    "hq_city": "Daytona Beach",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 696.6,
+    "lanes_est": 6269,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 11.1,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "T. Okafor",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 45.7M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 55,
+    "rank": 55,
+    "name": "Tyson",
+    "industry": "Food & Beverage",
+    "hq_city": "Springdale",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 694.6,
+    "lanes_est": 6251,
+    "arrive_sow_pct": 0.8,
+    "gap_m": 11.1,
+    "priority_tier": "Tier 1",
+    "arrive_status": "Prospect",
+    "owner": "M. Caldera",
+    "owner_role": "Named AE",
+    "signal": "MCS-150 2025: 209.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 56,
+    "rank": 56,
+    "name": "Nbcuniversal Media LLC",
+    "industry": "Retail",
+    "hq_city": "Universal City",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 199.2,
+    "lanes_est": 1792,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 563K mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 57,
+    "rank": 57,
+    "name": "Vistar Transportation LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Richmond",
+    "hq_state": "VA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 199.0,
+    "lanes_est": 1791,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 26.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 58,
+    "rank": 58,
+    "name": "Utility Lines Construction Services LLC",
+    "industry": "Building Materials",
+    "hq_city": "Willow Grove",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 199.0,
+    "lanes_est": 1791,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 7.5M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 59,
+    "rank": 59,
+    "name": "Graybar Electric Company INC",
+    "industry": "Retail",
+    "hq_city": "St Louis",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 198.8,
+    "lanes_est": 1789,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 22.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 60,
+    "rank": 60,
+    "name": "Lsg Sky Chefs",
+    "industry": "Other",
+    "hq_city": "Irving",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 198.6,
+    "lanes_est": 1787,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 520K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 61,
+    "rank": 61,
+    "name": "Mohawk",
+    "industry": "Retail",
+    "hq_city": "Calhoun",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 198.4,
+    "lanes_est": 1785,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.6,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 50.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 62,
+    "rank": 62,
+    "name": "Entergy Louisiana LLC",
+    "industry": "Building Materials",
+    "hq_city": "Metairie",
+    "hq_state": "LA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 197.8,
+    "lanes_est": 1780,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 12.5M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 63,
+    "rank": 63,
+    "name": "Apac-Central INC",
+    "industry": "Chemicals",
+    "hq_city": "Fayetteville",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 197.2,
+    "lanes_est": 1774,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 13.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 64,
+    "rank": 64,
+    "name": "Public Service Company Of Colorado",
+    "industry": "Building Materials",
+    "hq_city": "Denver",
+    "hq_state": "CO",
+    "region": "West",
+    "annual_freight_spend_m": 196.8,
+    "lanes_est": 1771,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 11.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 65,
+    "rank": 65,
+    "name": "Aramark",
+    "industry": "Food & Beverage",
+    "hq_city": "Philadelphia",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 196.4,
+    "lanes_est": 1767,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 10.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 66,
+    "rank": 66,
+    "name": "Croell INC",
+    "industry": "Building Materials",
+    "hq_city": "New Hampton",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 196.2,
+    "lanes_est": 1765,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 10.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 67,
+    "rank": 67,
+    "name": "Jefferson Parish",
+    "industry": "Chemicals",
+    "hq_city": "Jefferson",
+    "hq_state": "LA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 196.0,
+    "lanes_est": 1764,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 7.0M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 68,
+    "rank": 68,
+    "name": "Yellowstone Landscape",
+    "industry": "Industrial",
+    "hq_city": "Bunnell",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 196.0,
+    "lanes_est": 1764,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2022: 2.8M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 69,
+    "rank": 69,
+    "name": "Midamerican Energy Company",
+    "industry": "Chemicals",
+    "hq_city": "Altoona",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 195.8,
+    "lanes_est": 1762,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 18.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 70,
+    "rank": 70,
+    "name": "Crystal Clean LLC",
+    "industry": "Chemicals",
+    "hq_city": "Hoffman Estates",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 195.6,
+    "lanes_est": 1760,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 24.1M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 71,
+    "rank": 71,
+    "name": "Quikrete",
+    "industry": "Building Materials",
+    "hq_city": "Atlanta",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 195.6,
+    "lanes_est": 1760,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 63.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 72,
+    "rank": 72,
+    "name": "The Sygma Network",
+    "industry": "Food & Beverage",
+    "hq_city": "Dublin",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 195.4,
+    "lanes_est": 1758,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.5,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 65.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 73,
+    "rank": 73,
+    "name": "Mv Public Transportation INC",
+    "industry": "Other",
+    "hq_city": "Dallas",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 194.2,
+    "lanes_est": 1747,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 58.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 74,
+    "rank": 74,
+    "name": "Dart Transit Company",
+    "industry": "Food & Beverage",
+    "hq_city": "Eagan",
+    "hq_state": "MN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 194.2,
+    "lanes_est": 1747,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 97.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 75,
+    "rank": 75,
+    "name": "Reyes Coca-Cola Bottling LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Rosemont",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 194.2,
+    "lanes_est": 1747,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 17.9M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 76,
+    "rank": 76,
+    "name": "Northside Isd Transportation",
+    "industry": "Other",
+    "hq_city": "San Antonio",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 193.4,
+    "lanes_est": 1740,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 8.4M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 77,
+    "rank": 77,
+    "name": "Mariani Enterprises LLC",
+    "industry": "Industrial",
+    "hq_city": "Lake Bluff",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 193.4,
+    "lanes_est": 1740,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 7.6M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 78,
+    "rank": 78,
+    "name": "Prairie Farms Dairy",
+    "industry": "Food & Beverage",
+    "hq_city": "Edwardsville",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 193.2,
+    "lanes_est": 1738,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 16.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 79,
+    "rank": 79,
+    "name": "Metropolitan Transit Commission",
+    "industry": "Other",
+    "hq_city": "Minneapolis",
+    "hq_state": "MN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 193.2,
+    "lanes_est": 1738,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 80,
+    "rank": 80,
+    "name": "System Transport INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Cheney",
+    "hq_state": "WA",
+    "region": "West",
+    "annual_freight_spend_m": 193.2,
+    "lanes_est": 1738,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 82.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 81,
+    "rank": 81,
+    "name": "Hansen & Adkins Auto Transport INC",
+    "industry": "Auto",
+    "hq_city": "Los Alamitos",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 193.0,
+    "lanes_est": 1737,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 61.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 82,
+    "rank": 82,
+    "name": "Pgt Trucking INC",
+    "industry": "Building Materials",
+    "hq_city": "Aliquippa",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 193.0,
+    "lanes_est": 1737,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 86.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 83,
+    "rank": 83,
+    "name": "Wm",
+    "industry": "Other",
+    "hq_city": "Morristown",
+    "hq_state": "IN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 192.8,
+    "lanes_est": 1735,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 12.5M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 84,
+    "rank": 84,
+    "name": "Chaney Materials LLC",
+    "industry": "Other",
+    "hq_city": "Annapolis",
+    "hq_state": "MD",
+    "region": "Northeast",
+    "annual_freight_spend_m": 192.8,
+    "lanes_est": 1735,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 11.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 85,
+    "rank": 85,
+    "name": "The Fishel Company",
+    "industry": "Building Materials",
+    "hq_city": "Columbus",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 191.8,
+    "lanes_est": 1726,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 30.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 86,
+    "rank": 86,
+    "name": "Dohrn Transfer Company LLC",
+    "industry": "Chemicals",
+    "hq_city": "Rock Island",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 191.6,
+    "lanes_est": 1724,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.4,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 53.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 87,
+    "rank": 87,
+    "name": "Bfi Waste Services Of Texas LP",
+    "industry": "Other",
+    "hq_city": "Phoenix",
+    "hq_state": "AZ",
+    "region": "Southwest",
+    "annual_freight_spend_m": 190.8,
+    "lanes_est": 1717,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 29.8M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 88,
+    "rank": 88,
+    "name": "Landair Transport LLC",
+    "industry": "Retail",
+    "hq_city": "Greeneville",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 190.6,
+    "lanes_est": 1715,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 93.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 89,
+    "rank": 89,
+    "name": "Preferred Materials INC",
+    "industry": "Auto",
+    "hq_city": "Lutz",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 190.6,
+    "lanes_est": 1715,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 18.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 90,
+    "rank": 90,
+    "name": "Blair",
+    "industry": "Building Materials",
+    "hq_city": "Ensley",
+    "hq_state": "AL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 190.2,
+    "lanes_est": 1711,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 76.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 91,
+    "rank": 91,
+    "name": "Carter Lumber Transport",
+    "industry": "Building Materials",
+    "hq_city": "Kent",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 190.2,
+    "lanes_est": 1711,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 24.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 92,
+    "rank": 92,
+    "name": "Quantix Scs LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Morris",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 190.0,
+    "lanes_est": 1710,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 50.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 93,
+    "rank": 93,
+    "name": "New Legend INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Phoenix",
+    "hq_state": "AZ",
+    "region": "Southwest",
+    "annual_freight_spend_m": 190.0,
+    "lanes_est": 1710,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2022: 45.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 94,
+    "rank": 94,
+    "name": "Klx Energy Services LLC",
+    "industry": "Chemicals",
+    "hq_city": "Houston",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 189.6,
+    "lanes_est": 1706,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 11.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 95,
+    "rank": 95,
+    "name": "Oak Harbor Freight Lines INC",
+    "industry": "Retail",
+    "hq_city": "Auburn",
+    "hq_state": "WA",
+    "region": "West",
+    "annual_freight_spend_m": 189.4,
+    "lanes_est": 1704,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 53.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 96,
+    "rank": 96,
+    "name": "Publix",
+    "industry": "Food & Beverage",
+    "hq_city": "Lakeland",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 189.0,
+    "lanes_est": 1701,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 100.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 97,
+    "rank": 97,
+    "name": "Ati",
+    "industry": "Building Materials",
+    "hq_city": "Anaheim",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 188.8,
+    "lanes_est": 1699,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 480K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 98,
+    "rank": 98,
+    "name": "Walgreen Oshkosh INC",
+    "industry": "Retail",
+    "hq_city": "Windsor",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 188.4,
+    "lanes_est": 1695,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 83.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 99,
+    "rank": 99,
+    "name": "Adb Companies LLC",
+    "industry": "Building Materials",
+    "hq_city": "Pacific",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 188.4,
+    "lanes_est": 1695,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 12.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 100,
+    "rank": 100,
+    "name": "Landcare",
+    "industry": "Other",
+    "hq_city": "Frederick",
+    "hq_state": "MD",
+    "region": "Northeast",
+    "annual_freight_spend_m": 188.0,
+    "lanes_est": 1692,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 18.1M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 101,
+    "rank": 101,
+    "name": "Ready Mix USA LLC",
+    "industry": "Building Materials",
+    "hq_city": "Birmingham",
+    "hq_state": "AL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 188.0,
+    "lanes_est": 1692,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 27.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 102,
+    "rank": 102,
+    "name": "Allied Services LLC",
+    "industry": "Other",
+    "hq_city": "Phoenix",
+    "hq_state": "AZ",
+    "region": "Southwest",
+    "annual_freight_spend_m": 187.8,
+    "lanes_est": 1690,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.3,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 30.5M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 103,
+    "rank": 103,
+    "name": "Metro Transit",
+    "industry": "Other",
+    "hq_city": "Minneapolis",
+    "hq_state": "MN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 187.0,
+    "lanes_est": 1683,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2005: 2.4M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 104,
+    "rank": 104,
+    "name": "New Line Transport LLC",
+    "industry": "Building Materials",
+    "hq_city": "Miami",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 187.0,
+    "lanes_est": 1683,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 57.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 105,
+    "rank": 105,
+    "name": "Stevens Statewide INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Dallas",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 186.2,
+    "lanes_est": 1675,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 0K mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 106,
+    "rank": 106,
+    "name": "Nyc School Bus Umbrella Services INC",
+    "industry": "Other",
+    "hq_city": "Brooklyn",
+    "hq_state": "NY",
+    "region": "Northeast",
+    "annual_freight_spend_m": 186.0,
+    "lanes_est": 1674,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 12.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 107,
+    "rank": 107,
+    "name": "Rentokil North America INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Wyomissing",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 185.6,
+    "lanes_est": 1670,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 18.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 108,
+    "rank": 108,
+    "name": "Rexel USA INC",
+    "industry": "Building Materials",
+    "hq_city": "Dallas",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 185.4,
+    "lanes_est": 1668,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 17.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 109,
+    "rank": 109,
+    "name": "Roadrunner",
+    "industry": "Food & Beverage",
+    "hq_city": "Milwaukee",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 184.6,
+    "lanes_est": 1661,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 43.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 110,
+    "rank": 110,
+    "name": "H-E-B",
+    "industry": "Food & Beverage",
+    "hq_city": "San Antonio",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 184.4,
+    "lanes_est": 1659,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 72.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 111,
+    "rank": 111,
+    "name": "Abc Professional Tree Services INC",
+    "industry": "Industrial",
+    "hq_city": "Webster",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 184.4,
+    "lanes_est": 1659,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 5.4M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 112,
+    "rank": 112,
+    "name": "M A Mortenson Company",
+    "industry": "Building Materials",
+    "hq_city": "Minneapolis",
+    "hq_state": "MN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 184.0,
+    "lanes_est": 1656,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.2,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 8.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 113,
+    "rank": 113,
+    "name": "Oap Transportation LLC",
+    "industry": "Retail",
+    "hq_city": "Springfield",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 183.8,
+    "lanes_est": 1654,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 61.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 114,
+    "rank": 114,
+    "name": "Oakley Trucking INC",
+    "industry": "Food & Beverage",
+    "hq_city": "North Little Rock",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 183.6,
+    "lanes_est": 1652,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "B. Ackerman",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 86.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 115,
+    "rank": 115,
+    "name": "Niagara Mohawk Power Corp",
+    "industry": "Auto",
+    "hq_city": "Syracuse",
+    "hq_state": "NY",
+    "region": "Northeast",
+    "annual_freight_spend_m": 183.4,
+    "lanes_est": 1650,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "K. Bhatt",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2023: 9.4M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 116,
+    "rank": 116,
+    "name": "Ats Specialized INC",
+    "industry": "Auto",
+    "hq_city": "St Cloud",
+    "hq_state": "MN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 183.2,
+    "lanes_est": 1648,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 76.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 117,
+    "rank": 117,
+    "name": "Cassens Transport Company",
+    "industry": "Auto",
+    "hq_city": "Edwardsville",
+    "hq_state": "IL",
+    "region": "Midwest",
+    "annual_freight_spend_m": 182.2,
+    "lanes_est": 1639,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "P. Nolan",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 42.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 118,
+    "rank": 118,
+    "name": "Davenport Transportation INC",
+    "industry": "Other",
+    "hq_city": "Blairsville",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 182.0,
+    "lanes_est": 1638,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "R. Delgado",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2024: 24.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 119,
+    "rank": 119,
+    "name": "Savage",
+    "industry": "Chemicals",
+    "hq_city": "Midvale",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 180.6,
+    "lanes_est": 1625,
+    "arrive_sow_pct": 1.4,
+    "gap_m": 5.1,
+    "priority_tier": "Tier 2",
+    "arrive_status": "Prospect",
+    "owner": "N. Gutierrez",
+    "owner_role": "Regional AE",
+    "signal": "MCS-150 2025: 39.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 120,
+    "rank": 120,
+    "name": "Transcor America LLC",
+    "industry": "Other",
+    "hq_city": "Nashville",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 4.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 121,
+    "rank": 121,
+    "name": "Best Line Leasing INC",
+    "industry": "Industrial",
+    "hq_city": "State College",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 6.8M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 122,
+    "rank": 122,
+    "name": "Hydro Resources Mid Continent INC",
+    "industry": "Chemicals",
+    "hq_city": "Sunray",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 2.6M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 123,
+    "rank": 123,
+    "name": "Safetrans Transportation INC",
+    "industry": "Other",
+    "hq_city": "San Jose",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 2.3M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 124,
+    "rank": 124,
+    "name": "Gulf Relay LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Clinton",
+    "hq_state": "MS",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 21.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 125,
+    "rank": 125,
+    "name": "Sc Commercial LLC",
+    "industry": "Other",
+    "hq_city": "Orange",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 7.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 126,
+    "rank": 126,
+    "name": "Cognisa Transportation INC",
+    "industry": "Other",
+    "hq_city": "Atlanta",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2005: 2.4M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 127,
+    "rank": 127,
+    "name": "The East Ohio Gas Company",
+    "industry": "Chemicals",
+    "hq_city": "Cleveland",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.8,
+    "lanes_est": 448,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 2.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 128,
+    "rank": 128,
+    "name": "Atlanta Gas Light Company",
+    "industry": "Other",
+    "hq_city": "Atlanta",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.6,
+    "lanes_est": 446,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 1.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 129,
+    "rank": 129,
+    "name": "Ki Bois Community Action Foundation INC",
+    "industry": "Other",
+    "hq_city": "Stigler",
+    "hq_state": "OK",
+    "region": "Southwest",
+    "annual_freight_spend_m": 49.6,
+    "lanes_est": 446,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 4.9M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 130,
+    "rank": 130,
+    "name": "Ace Disposal INC",
+    "industry": "Other",
+    "hq_city": "West Valley City",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 49.6,
+    "lanes_est": 446,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 4.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 131,
+    "rank": 131,
+    "name": "The Church Of Jesus Christ Latter-Day Saints",
+    "industry": "Food & Beverage",
+    "hq_city": "Salt Lake City",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 49.6,
+    "lanes_est": 446,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 4.7M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 132,
+    "rank": 132,
+    "name": "Avala Express LLC",
+    "industry": "Auto",
+    "hq_city": "Franksville",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.6,
+    "lanes_est": 446,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 30.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 133,
+    "rank": 133,
+    "name": "Everest Express LLC",
+    "industry": "Retail",
+    "hq_city": "St Peters",
+    "hq_state": "MO",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 41.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 134,
+    "rank": 134,
+    "name": "Sacramento Regional Transit District",
+    "industry": "Other",
+    "hq_city": "Sacramento",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2018: 9.2M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 135,
+    "rank": 135,
+    "name": "Stone Transport",
+    "industry": "Building Materials",
+    "hq_city": "Saginaw",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2023: 14.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 136,
+    "rank": 136,
+    "name": "Lumina Systems LLC",
+    "industry": "Retail",
+    "hq_city": "Atlanta",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 24K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 137,
+    "rank": 137,
+    "name": "Garda Cl Southeast INC",
+    "industry": "Other",
+    "hq_city": "Boca Raton",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 5.9M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 138,
+    "rank": 138,
+    "name": "Hemet Unified School District",
+    "industry": "Other",
+    "hq_city": "Hemet",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.4,
+    "lanes_est": 444,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.8M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 139,
+    "rank": 139,
+    "name": "Odyssey Transport & Warehouse LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Chesterton",
+    "hq_state": "IN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 10.4M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 140,
+    "rank": 140,
+    "name": "Aralletrans LLC",
+    "industry": "Retail",
+    "hq_city": "West Chester",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2026: 22.6M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 141,
+    "rank": 141,
+    "name": "Metropower INC",
+    "industry": "Building Materials",
+    "hq_city": "Albany",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.7M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 142,
+    "rank": 142,
+    "name": "Extreme Transportation INC",
+    "industry": "Auto",
+    "hq_city": "Duluth",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 16.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 143,
+    "rank": 143,
+    "name": "Massey Services",
+    "industry": "Food & Beverage",
+    "hq_city": "Orlando",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 150K mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 144,
+    "rank": 144,
+    "name": "Api Group Life Safety USA LLC",
+    "industry": "Building Materials",
+    "hq_city": "Centennial",
+    "hq_state": "CO",
+    "region": "West",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 145,
+    "rank": 145,
+    "name": "S R Bray LLC",
+    "industry": "Chemicals",
+    "hq_city": "Anaheim",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 5.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 146,
+    "rank": 146,
+    "name": "Dawn Transportation LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Jackson",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 14.5M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 147,
+    "rank": 147,
+    "name": "Western Grain & Milling INC",
+    "industry": "Food & Beverage",
+    "hq_city": "Sanger",
+    "hq_state": "CA",
+    "region": "West",
+    "annual_freight_spend_m": 49.2,
+    "lanes_est": 442,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 12.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 148,
+    "rank": 148,
+    "name": "Greenway Premier Logistics INC",
+    "industry": "Retail",
+    "hq_city": "Morrisville",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2023: 5K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 149,
+    "rank": 149,
+    "name": "Jacko Logistics LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Vancouver",
+    "hq_state": "WA",
+    "region": "West",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 23.4M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 150,
+    "rank": 150,
+    "name": "Waste Connections Of Alaska INC",
+    "industry": "Other",
+    "hq_city": "Anchorage",
+    "hq_state": "AK",
+    "region": "West",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.2M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 151,
+    "rank": 151,
+    "name": "Mag Carriers LLC",
+    "industry": "Food & Beverage",
+    "hq_city": "Dearing",
+    "hq_state": "GA",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 17.2M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 152,
+    "rank": 152,
+    "name": "Imi Tennessee LLC",
+    "industry": "Building Materials",
+    "hq_city": "Nashville",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.7M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 153,
+    "rank": 153,
+    "name": "Valley Express INC",
+    "industry": "Auto",
+    "hq_city": "Mapleton",
+    "hq_state": "ND",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 20.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 154,
+    "rank": 154,
+    "name": "Rlcl Acquisition LLC",
+    "industry": "Other",
+    "hq_city": "Nashville",
+    "hq_state": "TN",
+    "region": "Southeast",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 4.6M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 155,
+    "rank": 155,
+    "name": "Davey Resource Group INC",
+    "industry": "Building Materials",
+    "hq_city": "Kent",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 5.0M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 156,
+    "rank": 156,
+    "name": "Axis Power LLC",
+    "industry": "Other",
+    "hq_city": "Beaumont",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.4M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 157,
+    "rank": 157,
+    "name": "Cmc Steel Fabricators INC",
+    "industry": "Chemicals",
+    "hq_city": "Irving",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 5.1M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 158,
+    "rank": 158,
+    "name": "H J Martin & Son INC",
+    "industry": "Building Materials",
+    "hq_city": "Green Bay",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 720K mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 159,
+    "rank": 159,
+    "name": "Corrigan Moving & Storage CO",
+    "industry": "Auto",
+    "hq_city": "Dearborn",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 49.0,
+    "lanes_est": 441,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.5,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.8M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 160,
+    "rank": 160,
+    "name": "Eversource Energy",
+    "industry": "Other",
+    "hq_city": "Berlin",
+    "hq_state": "CT",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 940K mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 161,
+    "rank": 161,
+    "name": "Trinity Materials LLC",
+    "industry": "Building Materials",
+    "hq_city": "Jacksonville",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2007: 9.8M mi · Private (Property)",
+    "signal_type": "dc"
+  },
+  {
+    "id": 162,
+    "rank": 162,
+    "name": "Cards",
+    "industry": "Other",
+    "hq_city": "Springdale",
+    "hq_state": "AR",
+    "region": "Southwest",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 4.9M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 163,
+    "rank": 163,
+    "name": "Consolidated Pipe & Supply CO INC",
+    "industry": "Building Materials",
+    "hq_city": "Birmingham",
+    "hq_state": "AL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2023: 4.8M mi · Safety: C · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 164,
+    "rank": 164,
+    "name": "Wright Tree Service Of The West INC",
+    "industry": "Building Materials",
+    "hq_city": "West Des Moines",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 165,
+    "rank": 165,
+    "name": "Waste Connections Of Oregon INC",
+    "industry": "Other",
+    "hq_city": "Portland",
+    "hq_state": "OR",
+    "region": "West",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.1M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 166,
+    "rank": 166,
+    "name": "Expedited Logistics And Freight Services LLC",
+    "industry": "Chemicals",
+    "hq_city": "Houston",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 13.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 167,
+    "rank": 167,
+    "name": "Customized Trucking",
+    "industry": "Food & Beverage",
+    "hq_city": "Jacksonville",
+    "hq_state": "FL",
+    "region": "Southeast",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 20.1M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 168,
+    "rank": 168,
+    "name": "Griffith Energy Services INC",
+    "industry": "Chemicals",
+    "hq_city": "Columbia",
+    "hq_state": "MD",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 2.3M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 169,
+    "rank": 169,
+    "name": "Waste Connections Of Kansas INC",
+    "industry": "Other",
+    "hq_city": "Wichita",
+    "hq_state": "KS",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.8,
+    "lanes_est": 439,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 5.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 170,
+    "rank": 170,
+    "name": "Fullington School Bus LLC",
+    "industry": "Other",
+    "hq_city": "Clearfield",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 2.4M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 171,
+    "rank": 171,
+    "name": "Trancasa USA INC",
+    "industry": "Retail",
+    "hq_city": "Pharr",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 18.8M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 172,
+    "rank": 172,
+    "name": "Palletized Trucking INC",
+    "industry": "Chemicals",
+    "hq_city": "Houston",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2023: 6.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 173,
+    "rank": 173,
+    "name": "Agreliant Genetics LLC",
+    "industry": "Industrial",
+    "hq_city": "Westfield",
+    "hq_state": "IN",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 100K mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 174,
+    "rank": 174,
+    "name": "Sbt INC",
+    "industry": "Chemicals",
+    "hq_city": "Omaha",
+    "hq_state": "NE",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2023: 6.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 175,
+    "rank": 175,
+    "name": "Schuster Concrete Ready Mix LLC",
+    "industry": "Building Materials",
+    "hq_city": "Owings Mills",
+    "hq_state": "MD",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.7M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 176,
+    "rank": 176,
+    "name": "Timeit Logistics LLC",
+    "industry": "Retail",
+    "hq_city": "Brooklyn",
+    "hq_state": "OH",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 101K mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 177,
+    "rank": 177,
+    "name": "Triple A Transport LLC",
+    "industry": "Retail",
+    "hq_city": "Dearborn",
+    "hq_state": "MI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.6,
+    "lanes_est": 437,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 1.8M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 178,
+    "rank": 178,
+    "name": "Z A Construction LLC",
+    "industry": "Building Materials",
+    "hq_city": "Mendenhall",
+    "hq_state": "MS",
+    "region": "Southeast",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 9.1M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 179,
+    "rank": 179,
+    "name": "Ralph L Wadsworth Construction LLC",
+    "industry": "Chemicals",
+    "hq_city": "Draper",
+    "hq_state": "UT",
+    "region": "West",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 5.0M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 180,
+    "rank": 180,
+    "name": "Autobuses Ejecutivos LLC",
+    "industry": "Other",
+    "hq_city": "Houston",
+    "hq_state": "TX",
+    "region": "Southwest",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 19.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 181,
+    "rank": 181,
+    "name": "Innovative Ag Services CO",
+    "industry": "Food & Beverage",
+    "hq_city": "Monticello",
+    "hq_state": "IA",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2025: 3.5M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 182,
+    "rank": 182,
+    "name": "Ascendance Trucks Central Leasing LLC",
+    "industry": "Other",
+    "hq_city": "Marshfield",
+    "hq_state": "WI",
+    "region": "Midwest",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.9M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 183,
+    "rank": 183,
+    "name": "Iew Construction Group INC",
+    "industry": "Building Materials",
+    "hq_city": "Trenton",
+    "hq_state": "NJ",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk C",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 3.3M mi · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 184,
+    "rank": 184,
+    "name": "American Transport INC",
+    "industry": "Auto",
+    "hq_city": "Moon Township",
+    "hq_state": "PA",
+    "region": "Northeast",
+    "annual_freight_spend_m": 48.4,
+    "lanes_est": 435,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk A",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 13.2M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  },
+  {
+    "id": 185,
+    "rank": 185,
+    "name": "Opterra Solutions INC",
+    "industry": "Auto",
+    "hq_city": "Lexington",
+    "hq_state": "SC",
+    "region": "Southeast",
+    "annual_freight_spend_m": 48.2,
+    "lanes_est": 433,
+    "arrive_sow_pct": 3.0,
+    "gap_m": 2.4,
+    "priority_tier": "Tier 3",
+    "arrive_status": "Prospect",
+    "owner": "Inside Desk B",
+    "owner_role": "Inside Sales",
+    "signal": "MCS-150 2024: 4.3M mi · Safety: S · Authorized For-Hire",
+    "signal_type": "cap"
+  }
+];
+
+/* ============================================================
+   Filter / sort / render state
+   ============================================================ */
+const state = {
+  tier:'all',
+  ind:'all',
+  reg:'all',
+  sortKey:'rank',
+  sortDir:'asc'
+};
+
+function setTierFilter(v, el){
+  state.tier = v;
+  document.querySelectorAll('[data-tier]').forEach(c=>{
+    c.classList.remove('active','t1-active','t2-active','t3-active');
+  });
+  if(v === 'all'){ el.classList.add('active'); }
+  else if(v === 'Tier 1'){ el.classList.add('t1-active'); }
+  else if(v === 'Tier 2'){ el.classList.add('t2-active'); }
+  else if(v === 'Tier 3'){ el.classList.add('t3-active'); }
+  renderTable();
+}
+function setIndFilter(v, el){
+  state.ind = v;
+  document.querySelectorAll('[data-ind]').forEach(c=>c.classList.remove('active','ind-active'));
+  if(v === 'all'){ el.classList.add('active'); }
+  else { el.classList.add('ind-active'); }
+  renderTable();
+}
+function setRegFilter(v, el){
+  state.reg = v;
+  document.querySelectorAll('[data-reg]').forEach(c=>c.classList.remove('active','reg-active'));
+  if(v === 'all'){ el.classList.add('active'); }
+  else { el.classList.add('reg-active'); }
+  renderTable();
+}
+function sortBy(key){
+  if(state.sortKey === key){
+    state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.sortKey = key;
+    // default direction - numeric cols descend first
+    const numericCols = ['annual_freight_spend_m','lanes_est'];
+    state.sortDir = numericCols.includes(key) ? 'desc' : 'asc';
+  }
+  renderTable();
+}
+
+function getFiltered(){
+  const q = (document.getElementById('search-box').value || '').trim().toLowerCase();
+  return SHIPPERS.filter(s => {
+    if(state.tier !== 'all' && s.priority_tier !== state.tier) return false;
+    if(state.ind !== 'all' && s.industry !== state.ind) return false;
+    if(state.reg !== 'all' && s.region !== state.reg) return false;
+    if(q){
+      const hay = (s.name + ' ' + s.hq_city + ' ' + s.hq_state + ' ' + s.industry).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function sortRows(rows){
+  const key = state.sortKey;
+  const dir = state.sortDir === 'asc' ? 1 : -1;
+  // custom ordering for special enum cols
+  const tierOrder = {'Tier 1':1,'Tier 2':2,'Tier 3':3};
+
+  return rows.slice().sort((a,b)=>{
+    let va = a[key];
+    let vb = b[key];
+    if(key === 'priority_tier'){ va = tierOrder[va]||99; vb = tierOrder[vb]||99; }
+    if(key === 'hq'){ va = (a.hq_city||'')+','+(a.hq_state||''); vb = (b.hq_city||'')+','+(b.hq_state||''); }
+    if(typeof va === 'string') va = va.toLowerCase();
+    if(typeof vb === 'string') vb = vb.toLowerCase();
+    if(va == null && vb != null) return 1;
+    if(vb == null && va != null) return -1;
+    if(va < vb) return -1*dir;
+    if(va > vb) return 1*dir;
+    return 0;
+  });
+}
+
+function formatMoney(m){
+  if(m == null) return '—';
+  if(m >= 1000) return '$' + (m/1000).toFixed(1) + 'B';
+  if(m >= 100) return '$' + Math.round(m) + 'M';
+  if(m >= 10) return '$' + m.toFixed(0) + 'M';
+  if(m >= 1) return '$' + m.toFixed(1) + 'M';
+  return '$' + (m).toFixed(1) + 'M';
+}
+function formatLanes(n){
+  if(n == null) return '—';
+  if(n >= 1000) return (n/1000).toFixed(1) + 'k';
+  return String(n);
+}
+function tierClass(t){
+  if(t === 'Tier 1') return 't1';
+  if(t === 'Tier 2') return 't2';
+  return 't3';
+}
+function statusClass(s){
+  if(s === 'Current') return 'status-current';
+  if(s === 'Prospect') return 'status-prospect';
+  return 'status-lapsed';
+}
+function sowColorClass(pct){
+  if(pct >= 1.5) return '';
+  if(pct >= 0.6) return 'med';
+  return 'low';
+}
+function signalTypeMeta(t){
+  const m = {
+    dc: {cls:'st-dc', lbl:'DC'},
+    rfp: {cls:'st-rfp', lbl:'RFP'},
+    '10k': {cls:'st-10k', lbl:'10-K'},
+    mna: {cls:'st-mna', lbl:'M&A'},
+    cap: {cls:'st-cap', lbl:'CAP'},
+    esg: {cls:'st-esg', lbl:'ESG'},
+    exec: {cls:'st-exec', lbl:'EXEC'},
+    geo: {cls:'st-geo', lbl:'GEO'}
+  };
+  return m[t] || {cls:'st-dc', lbl:'—'};
+}
+function ownerRoleClass(r){
+  if(!r) return '';
+  const lower = r.toLowerCase();
+  if(lower.includes('sdr')) return 'sdr';
+  if(lower.includes('inside')) return 'inside';
+  return 'ae';
+}
+function avatarInitials(n){
+  if(!n) return '??';
+  const parts = n.replace(/\./g,'').split(/\s+/).filter(x=>x);
+  if(parts.length === 1) return parts[0].substring(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+
+function gapBarWidth(m, maxGap){
+  if(m <= 0) return 4;
+  const pct = Math.min(100, (m/maxGap) * 100);
+  return Math.max(6, pct);
+}
+
+function renderTable(){
+  const filtered = getFiltered();
+  const sorted = sortRows(filtered);
+  const tbody = document.getElementById('table-body');
+  const emptyEl = document.getElementById('empty-state');
+
+  if(sorted.length === 0){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+  } else {
+    emptyEl.style.display = 'none';
+    const html = sorted.map(s => {
+      const tc = tierClass(s.priority_tier);
+      const sig = signalTypeMeta(s.signal_type);
+      return `<tr>
+        <td class="rank-cell">${s.rank}</td>
+        <td>
+          <div class="shipper-name">${s.name}</div>
+          <div class="shipper-sub">${s.industry} &middot; ${s.region}</div>
+        </td>
+        <td class="ind-cell">${s.industry}</td>
+        <td class="hq-cell">${s.hq_city}, ${s.hq_state}</td>
+        <td class="num-cell">${formatMoney(s.annual_freight_spend_m)}</td>
+        <td class="num-cell">${formatLanes(s.lanes_est)}</td>
+        <td><span class="tier-badge ${tc}">${s.priority_tier}</span></td>
+        <td class="signal-cell"><span class="signal-type ${sig.cls}">${sig.lbl}</span>${s.signal}</td>
+      </tr>`;
+    }).join('');
+    tbody.innerHTML = html;
+  }
+
+  // count + header styling
+  document.getElementById('result-count').textContent = sorted.length + ' carriers';
+  const ths = document.querySelectorAll('th');
+  ths.forEach(th => th.classList.remove('sort-asc','sort-desc'));
+  const colMap = {
+    'rank':'th-rank', 'name':'th-name', 'industry':'th-industry', 'hq':'th-hq',
+    'annual_freight_spend_m':'th-spend', 'lanes_est':'th-lanes', 'priority_tier':'th-tier'
+  };
+  const activeId = colMap[state.sortKey];
+  if(activeId){
+    const el = document.getElementById(activeId);
+    if(el){
+      el.classList.add(state.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  }
+}
+
+function exportCSV(){
+  const rows = sortRows(getFiltered());
+  const headers = ['Rank','Carrier','Vertical (illustrative)','HQ City','HQ State','Region','Est. Fleet Revenue ($M)','Lanes','Priority Tier','Signal Type','Signal'];
+  const lines = [headers.join(',')];
+  rows.forEach(s => {
+    const vals = [s.rank, s.name, s.industry, s.hq_city, s.hq_state, s.region, s.annual_freight_spend_m, s.lanes_est, s.priority_tier, s.signal_type, s.signal];
+    lines.push(vals.map(v => {
+      if(v == null) return '';
+      const str = String(v);
+      if(str.includes(',') || str.includes('"') || str.includes('\n')){
+        return '"' + str.replace(/"/g,'""') + '"';
+      }
+      return str;
+    }).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'arrive_carriers_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Initial render
+renderTable();
+</script>
+
+</body>
+</html>
